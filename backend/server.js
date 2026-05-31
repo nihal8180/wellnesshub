@@ -65,3 +65,20 @@ if (process.env.RUN_SEED === 'true') {
     }
   }, 1000);
 }
+if (process.env.RESET_ADMIN === 'true') {
+  const User = require('./models/User');
+  const mongoose = require('mongoose');
+  const waitForDB = setInterval(async () => {
+    if (mongoose.connection.readyState === 1) {
+      clearInterval(waitForDB);
+      await User.deleteOne({ email: process.env.ADMIN_EMAIL });
+      await User.create({
+        email: process.env.ADMIN_EMAIL,
+        password: process.env.ADMIN_PASSWORD,
+        name: 'Admin',
+        role: 'admin',
+      });
+      console.log('Admin user reset on production!');
+    }
+  }, 1000);
+}
