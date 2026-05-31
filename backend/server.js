@@ -38,3 +38,29 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`WellnessHub API running on port ${PORT}`));
+
+if (process.env.RUN_SEED === 'true') {
+  const User = require('./models/User');
+  mongoose = require('mongoose');
+  const waitForDB = setInterval(async () => {
+    if (mongoose.connection.readyState === 1) {
+      clearInterval(waitForDB);
+      try {
+        const existing = await User.findOne({ email: process.env.ADMIN_EMAIL });
+        if (!existing) {
+          await User.create({
+            email: process.env.ADMIN_EMAIL,
+            password: process.env.ADMIN_PASSWORD,
+            name: 'Admin',
+            role: 'admin',
+          });
+          console.log('Admin user created on production!');
+        } else {
+          console.log('Admin already exists');
+        }
+      } catch(e) {
+        console.log('Seed error:', e.message);
+      }
+    }
+  }, 1000);
+}
