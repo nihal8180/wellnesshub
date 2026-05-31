@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WellnessHub Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0b1a11; --surface:#0f2218; --card:#132b1a; --raised:#172f1e;
+  --border:rgba(74,222,128,.1); --border2:rgba(74,222,128,.2);
+  --accent:#4ade80; --accent2:#86efac;
+  --gold:#f59e0b; --gold2:#fcd34d;
+  --red:#f87171; --red-bg:rgba(248,113,113,.1);
+  --text:#f0fdf4; --muted:rgba(240,253,244,.55); --subtle:rgba(240,253,244,.25);
+  --sidebar:220px; --r:10px;
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);}
+input,textarea,select,button{font-family:'DM Sans',sans-serif;}
+
+/* ─── LOGIN ─────────────────────────────────────────────────────── */
+#loginScreen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;}
+#loginScreen.hidden{display:none;}
+.login-card{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:2.5rem;width:360px;}
+.login-logo{font-family:'Fraunces',serif;font-size:1.5rem;color:var(--accent);margin-bottom:.25rem;}
+.login-logo span{color:var(--gold);}
+.login-sub{color:var(--muted);font-size:.85rem;margin-bottom:2rem;}
+.field{margin-bottom:1.1rem;}
+.field label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:.4rem;font-weight:500;}
+.field input{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:.7rem 1rem;color:var(--text);font-size:.9rem;outline:none;transition:border-color .2s;}
+.field input:focus{border-color:var(--accent);}
+.btn-full{width:100%;background:var(--accent);color:var(--bg);border:none;padding:.8rem;border-radius:var(--r);font-size:.95rem;font-weight:500;cursor:pointer;transition:background .2s;}
+.btn-full:hover{background:var(--accent2);}
+.login-err{color:var(--red);font-size:.82rem;margin-top:.75rem;text-align:center;}
+
+/* ─── APP SHELL ─────────────────────────────────────────────────── */
+#app{display:none;height:100%;flex-direction:row;}
+#app.visible{display:flex;}
+
+/* ─── SIDEBAR ───────────────────────────────────────────────────── */
+aside{width:var(--sidebar);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;}
+.sidebar-logo{padding:1.5rem 1.25rem 1rem;border-bottom:1px solid var(--border);}
+.sidebar-logo .brand{font-family:'Fraunces',serif;font-size:1.25rem;color:var(--accent);}
+.sidebar-logo .brand span{color:var(--gold);}
+.sidebar-logo .role-tag{font-size:.7rem;color:var(--subtle);margin-top:.2rem;}
+nav.sidenav{flex:1;padding:1rem .75rem;overflow-y:auto;}
+.nav-group{margin-bottom:1.5rem;}
+.nav-group-label{font-size:.68rem;font-weight:500;letter-spacing:.1em;color:var(--subtle);text-transform:uppercase;padding:.25rem .5rem;margin-bottom:.35rem;}
+.nav-item{display:flex;align-items:center;gap:.75rem;padding:.6rem .75rem;border-radius:8px;cursor:pointer;color:var(--muted);font-size:.875rem;transition:all .2s;margin-bottom:2px;}
+.nav-item svg{width:16px;height:16px;flex-shrink:0;opacity:.7;}
+.nav-item:hover{background:rgba(74,222,128,.06);color:var(--text);}
+.nav-item.active{background:rgba(74,222,128,.1);color:var(--accent);}
+.nav-item.active svg{opacity:1;}
+.sidebar-foot{padding:.75rem;border-top:1px solid var(--border);}
+.user-chip{display:flex;align-items:center;gap:.6rem;padding:.5rem .75rem;border-radius:8px;}
+.user-av{width:28px;height:28px;background:rgba(74,222,128,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--accent);font-weight:500;flex-shrink:0;}
+.user-name{font-size:.82rem;color:var(--muted);}
+.logout-btn{background:none;border:none;color:var(--subtle);cursor:pointer;font-size:.75rem;padding:.25rem .5rem;border-radius:6px;transition:color .2s;width:100%;text-align:left;margin-top:.25rem;}
+.logout-btn:hover{color:var(--red);}
+
+/* ─── MAIN ──────────────────────────────────────────────────────── */
+main{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:.75rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.page-title{font-family:'Fraunces',serif;font-size:1.25rem;font-weight:300;}
+.topbar-actions{display:flex;gap:.75rem;align-items:center;}
+.btn-sm{background:var(--accent);color:var(--bg);border:none;padding:.45rem 1.1rem;border-radius:50px;font-size:.82rem;font-weight:500;cursor:pointer;transition:background .2s;}
+.btn-sm:hover{background:var(--accent2);}
+.btn-sm.secondary{background:rgba(74,222,128,.1);color:var(--accent);border:1px solid rgba(74,222,128,.2);}
+.btn-sm.secondary:hover{background:rgba(74,222,128,.18);}
+.btn-sm.danger{background:var(--red-bg);color:var(--red);border:1px solid rgba(248,113,113,.25);}
+.btn-sm.danger:hover{background:rgba(248,113,113,.2);}
+.content{padding:2rem;flex:1;}
+
+/* ─── PAGES ─────────────────────────────────────────────────────── */
+.page{display:none;}
+.page.active{display:block;}
+
+/* ─── STATS ─────────────────────────────────────────────────────── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;}
+.stat-card .label{font-size:.75rem;color:var(--muted);margin-bottom:.5rem;}
+.stat-card .val{font-family:'Fraunces',serif;font-size:2rem;font-weight:600;color:var(--text);}
+.stat-card .val.accent{color:var(--accent);}
+.stat-card .val.gold{color:var(--gold2);}
+.stat-card .hint{font-size:.75rem;color:var(--subtle);margin-top:.25rem;}
+
+/* ─── TABLE ─────────────────────────────────────────────────────── */
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.table-head{padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.table-head h3{font-size:.95rem;font-weight:500;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;font-size:.72rem;font-weight:500;color:var(--subtle);text-transform:uppercase;letter-spacing:.06em;padding:.75rem 1.25rem;background:var(--surface);border-bottom:1px solid var(--border);}
+td{padding:.85rem 1.25rem;border-bottom:1px solid var(--border);font-size:.875rem;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(74,222,128,.025);}
+.pill{display:inline-block;padding:.2rem .6rem;border-radius:50px;font-size:.7rem;font-weight:500;}
+.pill.green{background:rgba(74,222,128,.12);color:var(--accent);border:1px solid rgba(74,222,128,.2);}
+.pill.gray{background:rgba(240,253,244,.06);color:var(--subtle);border:1px solid rgba(240,253,244,.1);}
+.pill.gold{background:rgba(245,158,11,.12);color:var(--gold2);border:1px solid rgba(245,158,11,.2);}
+.pill.red{background:var(--red-bg);color:var(--red);border:1px solid rgba(248,113,113,.2);}
+.td-actions{display:flex;gap:.4rem;}
+.act-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:.3rem .7rem;border-radius:6px;font-size:.75rem;cursor:pointer;transition:all .2s;}
+.act-btn:hover{border-color:var(--accent);color:var(--accent);}
+.act-btn.del:hover{border-color:var(--red);color:var(--red);}
+.thumb-sm{width:60px;height:36px;border-radius:4px;object-fit:cover;background:var(--raised);}
+
+/* ─── SEARCH/FILTER BAR ─────────────────────────────────────────── */
+.filter-bar{display:flex;gap:.75rem;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;}
+.filter-bar input,.filter-bar select{background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:.5rem .9rem;color:var(--text);font-size:.875rem;outline:none;transition:border-color .2s;}
+.filter-bar input:focus,.filter-bar select:focus{border-color:var(--accent);}
+.filter-bar select option{background:var(--card);}
+
+/* ─── MODAL / DRAWER ────────────────────────────────────────────── */
+.drawer-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;display:flex;align-items:center;justify-content:center;}
+.drawer-bg.hidden{display:none;}
+.drawer{background:var(--surface);border:1px solid var(--border2);border-radius:16px;width:660px;max-width:95vw;max-height:90vh;overflow-y:auto;}
+.drawer-head{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:2;}
+.drawer-head h3{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:300;}
+.drawer-close{background:rgba(240,253,244,.08);border:1px solid var(--border);color:var(--muted);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.drawer-close:hover{color:var(--text);border-color:var(--accent);}
+.drawer-body{padding:1.5rem;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+.form-row.one{grid-template-columns:1fr;}
+.f{display:flex;flex-direction:column;gap:.35rem;}
+.f label{font-size:.78rem;font-weight:500;color:var(--muted);}
+.f input,.f select,.f textarea{background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:.65rem .9rem;color:var(--text);font-size:.9rem;outline:none;transition:border-color .2s;resize:vertical;}
+.f input:focus,.f select:focus,.f textarea:focus{border-color:var(--accent);}
+.f select option{background:var(--card);}
+.f textarea{min-height:220px;font-size:.875rem;line-height:1.6;}
+.toggle-row{display:flex;gap:1.5rem;align-items:center;margin-bottom:1rem;}
+.toggle-item{display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.875rem;color:var(--muted);}
+.toggle-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;}
+.drawer-foot{padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:.75rem;}
+
+/* ─── CONFIRM DIALOG ────────────────────────────────────────────── */
+.confirm-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:600;display:flex;align-items:center;justify-content:center;}
+.confirm-bg.hidden{display:none;}
+.confirm-box{background:var(--surface);border:1px solid rgba(248,113,113,.3);border-radius:14px;padding:1.75rem;width:360px;text-align:center;}
+.confirm-box h4{font-size:1rem;margin-bottom:.5rem;}
+.confirm-box p{color:var(--muted);font-size:.875rem;margin-bottom:1.5rem;}
+.confirm-btns{display:flex;gap:.75rem;justify-content:center;}
+.btn-cancel{background:rgba(240,253,244,.07);border:1px solid var(--border);color:var(--muted);padding:.55rem 1.25rem;border-radius:8px;cursor:pointer;font-size:.875rem;transition:all .2s;}
+.btn-cancel:hover{color:var(--text);}
+.btn-del{background:var(--red-bg);border:1px solid rgba(248,113,113,.3);color:var(--red);padding:.55rem 1.25rem;border-radius:8px;cursor:pointer;font-size:.875rem;transition:all .2s;}
+.btn-del:hover{background:rgba(248,113,113,.2);}
+
+/* ─── TOAST ─────────────────────────────────────────────────────── */
+#toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:.75rem 1.25rem;font-size:.875rem;z-index:999;transform:translateY(10px);opacity:0;transition:all .3s;pointer-events:none;}
+#toast.show{transform:translateY(0);opacity:1;}
+#toast.ok{border-color:rgba(74,222,128,.4);color:var(--accent);}
+#toast.err{border-color:rgba(248,113,113,.4);color:var(--red);}
+
+/* ─── MISC ──────────────────────────────────────────────────────── */
+.section-title{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:300;margin-bottom:1rem;}
+.sync-notice{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:var(--gold2);border-radius:8px;padding:.75rem 1.1rem;font-size:.825rem;margin-bottom:1.5rem;}
+.empty-row td{text-align:center;color:var(--subtle);padding:3rem;font-size:.875rem;}
+.page-tabs{display:flex;gap:.25rem;margin-bottom:1.5rem;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:.25rem;width:fit-content;}
+.ptab{background:none;border:none;padding:.45rem 1rem;border-radius:6px;color:var(--muted);font-size:.85rem;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
+.ptab.active{background:rgba(74,222,128,.12);color:var(--accent);}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">Wellness<span>Hub</span></div>
+    <div class="login-sub">Admin Dashboard — Sign in to continue</div>
+    <div class="field"><label>Email</label><input type="email" id="loginEmail" placeholder="admin@wellnesshub.com" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <div class="field"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <button class="btn-full" onclick="doLogin()">Sign In</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <aside>
+    <div class="sidebar-logo">
+      <div class="brand">Wellness<span>Hub</span></div>
+      <div class="role-tag">Admin Panel</div>
+    </div>
+    <nav class="sidenav">
+      <div class="nav-group">
+        <div class="nav-group-label">Overview</div>
+        <div class="nav-item active" onclick="goto('dashboard')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">Content</div>
+        <div class="nav-item" onclick="goto('videos')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          Videos
+        </div>
+        <div class="nav-item" onclick="goto('articles')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+          Articles
+        </div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-label">System</div>
+        <div class="nav-item" onclick="goto('settings')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Settings
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="user-chip">
+        <div class="user-av" id="userAv">A</div>
+        <div class="user-name" id="userName">Admin</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">↩ Sign out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+    <div class="topbar">
+      <div class="page-title" id="pageTitle">Dashboard</div>
+      <div class="topbar-actions" id="topbarActions"></div>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="label">Total Videos</div><div class="val accent" id="stTotalV">—</div><div class="hint">In database</div></div>
+          <div class="stat-card"><div class="label">Published Videos</div><div class="val" id="stPubV">—</div><div class="hint">Visible on site</div></div>
+          <div class="stat-card"><div class="label">Total Articles</div><div class="val accent" id="stTotalA">—</div><div class="hint">All articles</div></div>
+          <div class="stat-card"><div class="label">Article Views</div><div class="val gold" id="stViews">—</div><div class="hint">Cumulative reads</div></div>
+        </div>
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
+          <div class="stat-card"><div class="label">Published Articles</div><div class="val" id="stPubA">—</div></div>
+          <div class="stat-card"><div class="label">Draft Articles</div><div class="val" id="stDraft">—</div></div>
+          <div class="stat-card"><div class="label">Featured Videos</div><div class="val gold" id="stFeat">—</div></div>
+        </div>
+        <div class="sync-notice">
+          💡 Run a YouTube sync after adding new videos to your channel — this pulls them into the database and makes them searchable.
+        </div>
+        <div style="display:flex;gap:1rem;">
+          <button class="btn-sm" onclick="syncYouTube()">↻ Sync YouTube Now</button>
+          <button class="btn-sm secondary" onclick="goto('articles')">+ New Article</button>
+        </div>
+      </div>
+
+      <!-- VIDEOS -->
+      <div class="page" id="page-videos">
+        <div class="filter-bar">
+          <input type="text" id="vSearch" placeholder="Search videos…" oninput="filterVideos()" style="flex:1;min-width:200px;"/>
+          <select id="vCatFilter" onchange="filterVideos()"><option value="">All categories</option></select>
+          <select id="vStatusFilter" onchange="filterVideos()">
+            <option value="">All status</option><option value="true">Published</option><option value="false">Hidden</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <div class="table-head"><h3>Videos <span style="color:var(--subtle);font-weight:400;" id="vCount"></span></h3></div>
+          <table><thead><tr>
+            <th>Video</th><th>Title</th><th>Category</th><th>Status</th><th>Featured</th><th>Published</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="vTableBody"><tr><td colspan="7" style="text-align:center;color:var(--subtle);padding:3rem;">Loading…</td></tr></tbody></table>
+        </div>
+      </div>
+
+      <!-- ARTICLES -->
+      <div class="page" id="page-articles">
+        <div class="filter-bar">
+          <input type="text" id="aSearch" placeholder="Search articles…" oninput="filterArticles()" style="flex:1;min-width:200px;"/>
+          <select id="aCatFilter" onchange="filterArticles()"><option value="">All categories</option></select>
+          <select id="aStatusFilter" onchange="filterArticles()">
+            <option value="">All status</option><option value="true">Published</option><option value="false">Draft</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <div class="table-head"><h3>Articles <span style="color:var(--subtle);font-weight:400;" id="aCount"></span></h3></div>
+          <table><thead><tr>
+            <th>Title</th><th>Category</th><th>Author</th><th>Status</th><th>Featured</th><th>Views</th><th>Created</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="aTableBody"><tr><td colspan="8" style="text-align:center;color:var(--subtle);padding:3rem;">Loading…</td></tr></tbody></table>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="page" id="page-settings">
+        <div style="max-width:560px;">
+          <div class="section-title">Channel Configuration</div>
+          <div class="table-wrap" style="padding:1.5rem;margin-bottom:2rem;">
+            <div class="f" style="margin-bottom:1rem;"><label>YouTube Channel ID or Handle</label><input type="text" id="settingChannel" placeholder="UCxxxxxxxx or @YourChannel"/></div>
+            <div class="f" style="margin-bottom:1.25rem;"><label>Site Title</label><input type="text" id="settingTitle" placeholder="WellnessHub"/></div>
+            <button class="btn-sm" onclick="saveSettings()">Save Settings</button>
+          </div>
+          <div class="section-title">Danger Zone</div>
+          <div class="table-wrap" style="padding:1.5rem;border-color:rgba(248,113,113,.2);">
+            <p style="font-size:.875rem;color:var(--muted);margin-bottom:1rem;">Manually trigger a full YouTube sync. This will pull all videos from your channel into the database.</p>
+            <button class="btn-sm danger" onclick="syncYouTube()">↻ Sync YouTube Channel</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ARTICLE DRAWER -->
+<div class="drawer-bg hidden" id="articleDrawer">
+  <div class="drawer">
+    <div class="drawer-head">
+      <h3 id="drawerTitle">New Article</h3>
+      <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="drawer-body">
+      <input type="hidden" id="editingId"/>
+      <div class="form-row one"><div class="f"><label>Title *</label><input type="text" id="fTitle" placeholder="e.g. 10 Tips for a Healthy Heart"/></div></div>
+      <div class="form-row">
+        <div class="f"><label>Category</label>
+          <select id="fCategory">
+            <option>General</option><option>Nutrition</option><option>Mental Health</option>
+            <option>Fitness</option><option>Disease Awareness</option><option>Preventive Care</option>
+            <option>Women Health</option><option>Heart Health</option>
+          </select>
+        </div>
+        <div class="f"><label>Cover Image URL</label><input type="url" id="fCover" placeholder="https://…"/></div>
+      </div>
+      <div class="form-row one"><div class="f"><label>Excerpt * (1-2 sentences preview)</label><input type="text" id="fExcerpt" placeholder="A short summary shown in the article cards…"/></div></div>
+      <div class="form-row one"><div class="f"><label>Tags (comma separated)</label><input type="text" id="fTags" placeholder="diabetes, nutrition, heart health"/></div></div>
+      <div class="form-row one"><div class="f"><label>Content * (HTML or plain text)</label><textarea id="fContent" placeholder="Write your full article content here. You can use basic HTML tags like &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;li&gt; etc."></textarea></div></div>
+      <div class="toggle-row">
+        <label class="toggle-item"><input type="checkbox" id="fPublished"/> Published (visible on site)</label>
+        <label class="toggle-item"><input type="checkbox" id="fFeatured"/> Featured (shown prominently)</label>
+      </div>
+    </div>
+    <div class="drawer-foot">
+      <button class="btn-sm secondary" onclick="closeDrawer()">Cancel</button>
+      <button class="btn-sm" onclick="saveArticle()">Save Article</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE -->
+<div class="confirm-bg hidden" id="confirmBox">
+  <div class="confirm-box">
+    <h4>Delete this item?</h4>
+    <p id="confirmMsg">This action cannot be undone.</p>
+    <div class="confirm-btns">
+      <button class="btn-cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="btn-del" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const API = (window.BACKEND_URL || 'http://localhost:5000') + '/api';
+let token = localStorage.getItem('wh_token') || '';
+let currentUser = null;
+let allVideos = [], allArticles = [];
+let pendingDelete = null;
+const CATEGORIES = ['General','Nutrition','Mental Health','Fitness','Disease Awareness','Preventive Care','Women Health','Heart Health'];
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+async function doLogin(){
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  document.getElementById('loginErr').textContent = '';
+  try{
+    const r = await api('POST','/auth/login',{email,password:pass},false);
+    token = r.token;
+    currentUser = r.user;
+    localStorage.setItem('wh_token', token);
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('app').classList.add('visible');
+    document.getElementById('userName').textContent = currentUser.name;
+    document.getElementById('userAv').textContent   = currentUser.name[0].toUpperCase();
+    initApp();
+  }catch(e){ document.getElementById('loginErr').textContent = e.message; }
+}
+
+function logout(){
+  token = ''; localStorage.removeItem('wh_token');
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('loginScreen').classList.remove('hidden');
+}
+
+async function checkSession(){
+  if(!token) return;
+  try{
+    const r = await api('GET','/auth/me');
+    currentUser = r.user;
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('app').classList.add('visible');
+    document.getElementById('userName').textContent = currentUser.name;
+    document.getElementById('userAv').textContent   = currentUser.name[0].toUpperCase();
+    initApp();
+  }catch{ token=''; localStorage.removeItem('wh_token'); }
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+const PAGE_TITLES = {dashboard:'Dashboard',videos:'Videos',articles:'Articles',settings:'Settings'};
+
+function goto(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelector(`.nav-item[onclick="goto('${page}')"]`).classList.add('active');
+  document.getElementById('pageTitle').textContent = PAGE_TITLES[page]||page;
+  setTopbarActions(page);
+  if(page==='videos') loadVideos();
+  if(page==='articles') loadArticles();
+  if(page==='settings') loadSettings();
+}
+
+function setTopbarActions(page){
+  const el = document.getElementById('topbarActions');
+  if(page==='videos')   el.innerHTML = `<button class="btn-sm secondary" onclick="syncYouTube()">↻ Sync YouTube</button>`;
+  else if(page==='articles') el.innerHTML = `<button class="btn-sm" onclick="openNewArticle()">+ New Article</button>`;
+  else el.innerHTML = '';
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+async function initApp(){
+  goto('dashboard');
+  await loadStats();
+}
+
+async function loadStats(){
+  try{
+    const s = await api('GET','/admin/stats');
+    document.getElementById('stTotalV').textContent = s.videos.total;
+    document.getElementById('stPubV').textContent   = s.videos.published;
+    document.getElementById('stFeat').textContent   = s.videos.featured;
+    document.getElementById('stTotalA').textContent = s.articles.total;
+    document.getElementById('stPubA').textContent   = s.articles.published;
+    document.getElementById('stDraft').textContent  = s.articles.drafts;
+    document.getElementById('stViews').textContent  = s.totalArticleViews.toLocaleString();
+  }catch(e){ console.warn('Stats:', e.message); }
+}
+
+// ── YOUTUBE SYNC ──────────────────────────────────────────────────────────────
+async function syncYouTube(){
+  toast('Syncing YouTube channel…','');
+  try{
+    const r = await api('POST','/admin/sync-youtube');
+    toast(r.message,'ok');
+    if(document.getElementById('page-videos').classList.contains('active')) loadVideos();
+    loadStats();
+  }catch(e){ toast(e.message,'err'); }
+}
+
+// ── VIDEOS ────────────────────────────────────────────────────────────────────
+async function loadVideos(){
+  document.getElementById('vTableBody').innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--subtle);padding:2rem;">Loading…</td></tr>';
+  // Populate cat filter
+  const cf = document.getElementById('vCatFilter');
+  if(cf.options.length===1){ CATEGORIES.forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; cf.appendChild(o); }); }
+  try{
+    const data = await api('GET','/videos/admin/all?limit=200');
+    allVideos = data.items || data;
+    renderVideoTable(allVideos);
+  }catch(e){
+    // Try public endpoint
+    try{
+      const data2 = await api('GET','/videos?limit=200');
+      allVideos = data2.items || data2;
+      renderVideoTable(allVideos);
+    }catch(e2){ document.getElementById('vTableBody').innerHTML=`<tr><td colspan="7" style="text-align:center;color:var(--subtle);padding:2rem;">Error: ${e2.message}</td></tr>`; }
+  }
+}
+
+function filterVideos(){
+  const q  = document.getElementById('vSearch').value.toLowerCase();
+  const cat= document.getElementById('vCatFilter').value;
+  const st = document.getElementById('vStatusFilter').value;
+  const filtered = allVideos.filter(v=>{
+    if(q && !v.title.toLowerCase().includes(q)) return false;
+    if(cat && v.category!==cat) return false;
+    if(st!=='' && String(v.published)!==st) return false;
+    return true;
+  });
+  renderVideoTable(filtered);
+}
+
+function renderVideoTable(videos){
+  document.getElementById('vCount').textContent = `(${videos.length})`;
+  if(!videos.length){ document.getElementById('vTableBody').innerHTML='<tr><td colspan="7" class="empty-row">No videos found</td></tr>'; return; }
+  document.getElementById('vTableBody').innerHTML = videos.map(v=>`
+    <tr>
+      <td><img class="thumb-sm" src="${v.thumbnail||''}" alt="" onerror="this.style.display='none'"/></td>
+      <td style="max-width:280px;"><div style="font-size:.875rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(v.title)}</div></td>
+      <td>${v.category?`<span class="pill gray">${esc(v.category)}</span>`:'-'}</td>
+      <td><span class="pill ${v.published?'green':'red'}">${v.published?'Published':'Hidden'}</span></td>
+      <td><span class="pill ${v.featured?'gold':'gray'}">${v.featured?'Featured':'—'}</span></td>
+      <td style="color:var(--subtle);font-size:.78rem;">${fmtDate(v.publishedAt)}</td>
+      <td><div class="td-actions">
+        <button class="act-btn" onclick="toggleVideo('${v._id}','published',${!v.published})">${v.published?'Hide':'Show'}</button>
+        <button class="act-btn" onclick="toggleVideo('${v._id}','featured',${!v.featured})">${v.featured?'Unfeature':'Feature'}</button>
+        <button class="act-btn" style="color:var(--gold2);border-color:rgba(245,158,11,.3);" onclick="generateArticle('${v._id}','${esc(v.title)}')">✦ Article</button>
+        <button class="act-btn del" onclick="askDelete('video','${v._id}','${esc(v.title)}')">Delete</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+async function toggleVideo(id, field, val){
+  try{
+    await api('PATCH',`/videos/${id}`,{[field]:val});
+    const v = allVideos.find(v=>v._id===id);
+    if(v) v[field]=val;
+    renderVideoTable(allVideos);
+    toast(`Video ${field} updated`,'ok');
+  }catch(e){ toast(e.message,'err'); }
+}
+
+// ── ARTICLES ──────────────────────────────────────────────────────────────────
+async function loadArticles(){
+  document.getElementById('aTableBody').innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--subtle);padding:2rem;">Loading…</td></tr>';
+  const cf = document.getElementById('aCatFilter');
+  if(cf.options.length===1){ CATEGORIES.forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; cf.appendChild(o); }); }
+  try{
+    const data = await api('GET','/articles/admin/all?limit=200');
+    allArticles = data.items || [];
+    renderArticleTable(allArticles);
+  }catch(e){ document.getElementById('aTableBody').innerHTML=`<tr><td colspan="8" style="text-align:center;color:var(--subtle);padding:2rem;">Error: ${e.message}</td></tr>`; }
+}
+
+function filterArticles(){
+  const q  = document.getElementById('aSearch').value.toLowerCase();
+  const cat= document.getElementById('aCatFilter').value;
+  const st = document.getElementById('aStatusFilter').value;
+  const filtered = allArticles.filter(a=>{
+    if(q && !a.title.toLowerCase().includes(q)) return false;
+    if(cat && a.category!==cat) return false;
+    if(st!=='' && String(a.published)!==st) return false;
+    return true;
+  });
+  renderArticleTable(filtered);
+}
+
+function renderArticleTable(arts){
+  document.getElementById('aCount').textContent = `(${arts.length})`;
+  if(!arts.length){ document.getElementById('aTableBody').innerHTML='<tr><td colspan="8" class="empty-row">No articles found</td></tr>'; return; }
+  document.getElementById('aTableBody').innerHTML = arts.map(a=>`
+    <tr>
+      <td style="max-width:260px;"><div style="font-size:.875rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(a.title)}</div></td>
+      <td><span class="pill gray">${esc(a.category||'General')}</span></td>
+      <td style="color:var(--muted);font-size:.8rem;">${esc(a.author||'—')}</td>
+      <td><span class="pill ${a.published?'green':'red'}">${a.published?'Published':'Draft'}</span></td>
+      <td><span class="pill ${a.featured?'gold':'gray'}">${a.featured?'Featured':'—'}</span></td>
+      <td style="color:var(--subtle);font-size:.8rem;">${(a.views||0).toLocaleString()}</td>
+      <td style="color:var(--subtle);font-size:.78rem;">${fmtDate(a.createdAt)}</td>
+      <td><div class="td-actions">
+        <button class="act-btn" onclick="editArticle('${a._id}')">Edit</button>
+        <button class="act-btn" onclick="toggleArticle('${a._id}','published',${!a.published})">${a.published?'Unpublish':'Publish'}</button>
+        <button class="act-btn" onclick="toggleArticle('${a._id}','featured',${!a.featured})">${a.featured?'Unfeature':'Feature'}</button>
+        <button class="act-btn del" onclick="askDelete('article','${a._id}','${esc(a.title)}')">Delete</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+async function toggleArticle(id, field, val){
+  try{
+    await api('PATCH',`/articles/${id}`,{[field]:val});
+    const a = allArticles.find(a=>a._id===id);
+    if(a) a[field]=val;
+    renderArticleTable(allArticles);
+    toast(`Article ${field} updated`,'ok');
+    loadStats();
+  }catch(e){ toast(e.message,'err'); }
+}
+
+// ── ARTICLE DRAWER ────────────────────────────────────────────────────────────
+function openNewArticle(){
+  document.getElementById('editingId').value = '';
+  document.getElementById('drawerTitle').textContent = 'New Article';
+  document.getElementById('fTitle').value    = '';
+  document.getElementById('fExcerpt').value  = '';
+  document.getElementById('fContent').value  = '';
+  document.getElementById('fTags').value     = '';
+  document.getElementById('fCover').value    = '';
+  document.getElementById('fCategory').value = 'General';
+  document.getElementById('fPublished').checked = false;
+  document.getElementById('fFeatured').checked  = false;
+  document.getElementById('articleDrawer').classList.remove('hidden');
+}
+
+async function editArticle(id){
+  try{
+    const a = await api('GET',`/articles/admin/${id}`);
+    document.getElementById('editingId').value    = id;
+    document.getElementById('drawerTitle').textContent = 'Edit Article';
+    document.getElementById('fTitle').value       = a.title||'';
+    document.getElementById('fExcerpt').value     = a.excerpt||'';
+    document.getElementById('fContent').value     = a.content||'';
+    document.getElementById('fTags').value        = (a.tags||[]).join(', ');
+    document.getElementById('fCover').value       = a.coverImage||'';
+    document.getElementById('fCategory').value    = a.category||'General';
+    document.getElementById('fPublished').checked = a.published||false;
+    document.getElementById('fFeatured').checked  = a.featured||false;
+    document.getElementById('articleDrawer').classList.remove('hidden');
+  }catch(e){ toast(e.message,'err'); }
+}
+
+async function saveArticle(){
+  const id      = document.getElementById('editingId').value;
+  const title   = document.getElementById('fTitle').value.trim();
+  const excerpt = document.getElementById('fExcerpt').value.trim();
+  const content = document.getElementById('fContent').value.trim();
+  if(!title||!excerpt||!content){ toast('Title, excerpt, and content are required','err'); return; }
+
+  const body = {
+    title, excerpt, content,
+    category:   document.getElementById('fCategory').value,
+    coverImage: document.getElementById('fCover').value.trim()||undefined,
+    tags:       document.getElementById('fTags').value.split(',').map(t=>t.trim()).filter(Boolean),
+    published:  document.getElementById('fPublished').checked,
+    featured:   document.getElementById('fFeatured').checked,
+  };
+  try{
+    if(id) await api('PUT',`/articles/${id}`,body);
+    else   await api('POST','/articles',body);
+    toast(id?'Article updated':'Article created','ok');
+    closeDrawer();
+    loadArticles();
+    loadStats();
+  }catch(e){ toast(e.message,'err'); }
+}
+
+function closeDrawer(){ document.getElementById('articleDrawer').classList.add('hidden'); }
+
+// ── DELETE ────────────────────────────────────────────────────────────────────
+function askDelete(type, id, name){
+  pendingDelete = {type, id};
+  document.getElementById('confirmMsg').textContent = `Delete "${name}"? This cannot be undone.`;
+  document.getElementById('confirmBox').classList.remove('hidden');
+}
+async function confirmDelete(){
+  if(!pendingDelete) return;
+  const {type,id} = pendingDelete;
+  closeConfirm();
+  try{
+    await api('DELETE',`/${type==='video'?'videos':'articles'}/${id}`);
+    toast('Deleted successfully','ok');
+    if(type==='video'){ allVideos=allVideos.filter(v=>v._id!==id); renderVideoTable(allVideos); }
+    else{ allArticles=allArticles.filter(a=>a._id!==id); renderArticleTable(allArticles); }
+    loadStats();
+  }catch(e){ toast(e.message,'err'); }
+}
+function closeConfirm(){ pendingDelete=null; document.getElementById('confirmBox').classList.add('hidden'); }
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────────
+async function loadSettings(){
+  try{
+    const [ch,ti] = await Promise.all([
+      api('GET','/settings/youtubeChannelId'),
+      api('GET','/settings/siteTitle')
+    ]);
+    document.getElementById('settingChannel').value = ch.value||'';
+    document.getElementById('settingTitle').value   = ti.value||'';
+  }catch{}
+}
+async function saveSettings(){
+  const ch = document.getElementById('settingChannel').value.trim();
+  const ti = document.getElementById('settingTitle').value.trim();
+  try{
+    await Promise.all([
+      api('PUT','/settings/youtubeChannelId',{value:ch}),
+      api('PUT','/settings/siteTitle',{value:ti})
+    ]);
+    toast('Settings saved','ok');
+  }catch(e){ toast(e.message,'err'); }
+}
+
+// ── API HELPER ────────────────────────────────────────────────────────────────
+async function api(method, path, body, auth=true){
+  const opts = { method, headers:{'Content-Type':'application/json'} };
+  if(auth && token) opts.headers['Authorization'] = 'Bearer '+token;
+  if(body) opts.body = JSON.stringify(body);
+  const r = await fetch(API+path, opts);
+  const d = await r.json();
+  if(!r.ok) throw new Error(d.error||`HTTP ${r.status}`);
+  return d;
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtDate(s){ if(!s)return'—'; return new Date(s).toLocaleDateString('en-IN',{year:'numeric',month:'short',day:'numeric'}); }
+let toastTimer;
+function toast(msg, type){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'show '+(type||'');
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>el.className='', 3000);
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeDrawer(); closeConfirm(); }});
+
+// ── GENERATE ARTICLE FROM VIDEO ──────────────────────────────────────────────
+async function generateArticle(videoId, videoTitle) {
+  if (!confirm(`Generate a health article from:\n"${videoTitle}"?\n\nIt will be saved as a draft for you to review.`)) return;
+  toast('Generating article… please wait', '');
+  try {
+    const article = await api('POST', `/articles/generate-from-video/${videoId}`);
+    toast('Article created as draft! Go to Articles tab to publish.', 'ok');
+    // Switch to articles tab automatically
+    setTimeout(() => { goto('articles'); }, 1500);
+  } catch(e) {
+    toast('Error: ' + e.message, 'err');
+  }
+}
+
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+checkSession();
+</script>
+</body>
+</html>
