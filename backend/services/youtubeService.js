@@ -59,7 +59,7 @@ async function summarizeWithGroq(text, title) {
   const Groq = require('groq-sdk');
   const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
   const completion = await groq.chat.completions.create({
-    model: 'llama3-8b-8192',
+    model: 'llama-3.3-70b-versatile',
     messages: [
       { role: 'system', content: 'You are a health content summarizer. Respond with a valid JSON array of strings only. No markdown.' },
       { role: 'user', content: `You are a health content summarizer. The video may be in Hindi or English or mixed.
