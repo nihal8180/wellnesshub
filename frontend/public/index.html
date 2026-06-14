@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,363 +8,279 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#1e1a17;
-  --surface:#2b2622;
-  --card:#332e29;
-  --raised:#3d3630;
-  --border:rgba(43,168,164,.12);
-  --border2:rgba(43,168,164,.25);
-  --teal:#2ba8a4;
-  --teal2:#5bc4c0;
-  --teal3:rgba(43,168,164,.08);
-  --gold:#c9a961;
-  --gold2:#ddc789;
-  --text:#f0ede6;
-  --muted:rgba(240,237,230,.55);
-  --subtle:rgba(240,237,230,.28);
-  --r:14px;
+  --bg:#1e1a17;--surface:#2b2622;--card:#332e29;--raised:#3d3630;
+  --border:rgba(43,168,164,.12);--border2:rgba(43,168,164,.28);
+  --teal:#2ba8a4;--teal2:#5bc4c0;--gold:#c9a961;--gold2:#ddc789;
+  --text:#f0ede6;--muted:rgba(240,237,230,.55);--subtle:rgba(240,237,230,.28);--r:12px;
 }
 html{scroll-behavior:smooth;}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
-
-/* ── NAV ── */
-nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:0 2rem;
-  background:rgba(30,26,23,.92);backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--border);}
-.nav-in{max-width:1200px;margin:0 auto;display:flex;align-items:center;height:64px;gap:2rem;}
-.logo{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:600;color:var(--text);letter-spacing:-.5px;margin-right:auto;display:flex;align-items:center;gap:.1rem;}
-.logo .th{background:var(--teal);color:var(--bg);padding:0 4px;border-radius:4px;font-style:italic;}
-.nav-links{display:flex;gap:1.5rem;list-style:none;}
-.nav-links a{text-decoration:none;color:var(--muted);font-size:.875rem;transition:color .2s;}
-.nav-links a:hover{color:var(--teal);}
-.nav-btn{background:var(--teal);color:var(--bg);border:none;padding:.45rem 1.2rem;border-radius:50px;font-size:.85rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
-.nav-btn:hover{background:var(--teal2);}
-
-/* ── HERO ── */
-.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:6rem 2rem 4rem;position:relative;overflow:hidden;}
-.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(43,168,164,.12) 0%,transparent 70%);}
-.hero-line{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--teal),transparent);}
-.hero-in{max-width:820px;margin:0 auto;text-align:center;position:relative;}
-.hero-pill{display:inline-flex;align-items:center;gap:.5rem;background:rgba(43,168,164,.1);border:1px solid rgba(43,168,164,.3);color:var(--teal2);font-size:.8rem;padding:.35rem 1rem;border-radius:50px;margin-bottom:2rem;}
-.hero-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--teal);display:block;animation:blink 2s ease-in-out infinite;}
-@keyframes blink{0%,100%{opacity:.3;}50%{opacity:1;}}
-h1{font-family:'Fraunces',serif;font-size:clamp(2.8rem,7vw,5.2rem);font-weight:300;line-height:1.08;margin-bottom:1.5rem;letter-spacing:-.02em;}
-h1 em{font-style:italic;color:var(--teal);}
-h1 strong{font-weight:600;}
-.hero-sub{color:var(--muted);font-size:1.05rem;line-height:1.7;margin-bottom:3rem;max-width:580px;margin-left:auto;margin-right:auto;}
-.hero-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
-.btn-t{background:var(--teal);color:var(--bg);border:none;padding:.8rem 2rem;border-radius:50px;font-size:.95rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
-.btn-t:hover{background:var(--teal2);transform:translateY(-2px);}
-.btn-o{background:transparent;color:var(--teal);border:1.5px solid rgba(43,168,164,.4);padding:.8rem 2rem;border-radius:50px;font-size:.95rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
-.btn-o:hover{border-color:var(--teal);background:rgba(43,168,164,.06);}
-.hero-stats{display:flex;gap:3rem;justify-content:center;margin-top:4rem;padding-top:3rem;border-top:1px solid var(--border);}
-.stat{text-align:center;}
-.stat-n{font-family:'Fraunces',serif;font-size:2rem;font-weight:600;color:var(--teal);display:block;}
-.stat-l{font-size:.78rem;color:var(--subtle);margin-top:.25rem;letter-spacing:.04em;text-transform:uppercase;}
-
-/* ── SEARCH ── */
-.search-sec{background:var(--surface);padding:5rem 2rem;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
-.search-in{max-width:720px;margin:0 auto;}
-.sec-label{font-size:.72rem;font-weight:500;letter-spacing:.14em;color:var(--teal);text-transform:uppercase;margin-bottom:.75rem;}
-.sec-title{font-family:'Fraunces',serif;font-size:2.4rem;font-weight:300;line-height:1.2;margin-bottom:.75rem;}
-.sec-title em{font-style:italic;color:var(--teal);}
-.sec-sub{color:var(--muted);font-size:.95rem;margin-bottom:2rem;line-height:1.6;}
-.s-bar{display:flex;background:rgba(43,168,164,.05);border:1.5px solid rgba(43,168,164,.2);border-radius:50px;overflow:hidden;transition:border-color .2s;}
-.s-bar:focus-within{border-color:var(--teal);}
-.s-bar input{flex:1;background:transparent;border:none;outline:none;padding:1rem 1.5rem;font-size:1rem;font-family:'DM Sans',sans-serif;color:var(--text);}
-.s-bar input::placeholder{color:var(--subtle);}
-.s-bar button{background:var(--teal);color:var(--bg);border:none;padding:1rem 1.75rem;font-size:.9rem;font-weight:500;cursor:pointer;border-radius:50px;margin:6px;font-family:'DM Sans',sans-serif;transition:background .2s;}
-.s-bar button:hover{background:var(--teal2);}
-.cats{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.25rem;}
-.cat-chip{background:transparent;border:1px solid var(--border);color:var(--muted);padding:.3rem .85rem;border-radius:50px;font-size:.8rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
-.cat-chip:hover,.cat-chip.active{background:rgba(43,168,164,.12);border-color:rgba(43,168,164,.4);color:var(--teal);}
-
-/* ── VIDEO GRID ── */
-.vgrid-sec{max-width:1200px;margin:0 auto;padding:4rem 2rem;}
-.row-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;}
-.row-hd h2{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:300;}
-.row-hd h2 em{font-style:italic;color:var(--teal);}
-.badge{background:rgba(43,168,164,.1);border:1px solid rgba(43,168,164,.2);color:var(--teal2);font-size:.78rem;padding:.25rem .75rem;border-radius:50px;}
-.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;}
-.vcard{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .3s;position:relative;}
-.vcard:hover{border-color:rgba(43,168,164,.4);transform:translateY(-4px);box-shadow:0 12px 40px rgba(43,168,164,.1);}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:0 1.5rem;background:rgba(30,26,23,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.nav-in{max-width:1300px;margin:0 auto;display:flex;align-items:center;height:60px;gap:1.5rem;}
+.logo{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:600;color:var(--text);letter-spacing:-.5px;margin-right:auto;text-decoration:none;cursor:pointer;}
+.logo .th{background:var(--teal);color:#1a1714;padding:0 4px;border-radius:4px;font-style:italic;}
+.nav-search{display:flex;background:rgba(43,168,164,.06);border:1.5px solid rgba(43,168,164,.15);border-radius:50px;overflow:hidden;transition:border-color .2s;width:300px;}
+.nav-search:focus-within{border-color:var(--teal);}
+.nav-search input{flex:1;background:transparent;border:none;outline:none;padding:.5rem 1rem;font-size:.875rem;font-family:'DM Sans',sans-serif;color:var(--text);}
+.nav-search input::placeholder{color:var(--subtle);}
+.nav-search button{background:var(--teal);color:#1a1714;border:none;padding:.5rem 1rem;font-size:.8rem;font-weight:500;cursor:pointer;border-radius:50px;margin:4px;font-family:'DM Sans',sans-serif;}
+.nav-links{display:flex;gap:.25rem;}
+.nav-link{background:none;border:none;color:var(--muted);font-size:.85rem;cursor:pointer;padding:.4rem .8rem;border-radius:50px;transition:all .2s;font-family:'DM Sans',sans-serif;}
+.nav-link:hover,.nav-link.active{background:rgba(43,168,164,.1);color:var(--teal);}
+.app-layout{max-width:1300px;margin:0 auto;padding:76px 1.5rem 2rem;display:grid;grid-template-columns:210px 1fr;gap:1.5rem;min-height:100vh;}
+.sidebar{position:sticky;top:76px;height:calc(100vh - 96px);overflow-y:auto;display:flex;flex-direction:column;gap:1rem;}
+.sidebar::-webkit-scrollbar{width:3px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+.sidebar-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.sidebar-title{padding:.75rem 1rem;font-size:.68rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);border-bottom:1px solid var(--border);}
+.cat-list{padding:.4rem;}
+.cat-item{display:flex;align-items:center;justify-content:space-between;padding:.5rem .7rem;border-radius:8px;cursor:pointer;color:var(--muted);font-size:.82rem;transition:all .2s;margin-bottom:1px;}
+.cat-item:hover{background:rgba(43,168,164,.08);color:var(--text);}
+.cat-item.active{background:rgba(43,168,164,.14);color:var(--teal);}
+.cnt{font-size:.7rem;background:rgba(43,168,164,.1);color:var(--teal2);padding:.12rem .45rem;border-radius:50px;}
+.main-content{min-width:0;}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
+.sec-hd h2{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:300;}
+.sec-hd h2 em{color:var(--teal);font-style:italic;}
+.sec-badge{background:rgba(43,168,164,.1);border:1px solid rgba(43,168,164,.2);color:var(--teal2);font-size:.75rem;padding:.2rem .65rem;border-radius:50px;margin-left:.75rem;}
+.vgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem;}
+.vcard{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .25s;}
+.vcard:hover{border-color:rgba(43,168,164,.35);transform:translateY(-3px);box-shadow:0 8px 30px rgba(43,168,164,.1);}
 .vcard-thumb{position:relative;aspect-ratio:16/9;overflow:hidden;background:var(--raised);}
 .vcard-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
-.vcard:hover .vcard-thumb img{transform:scale(1.05);}
-.vcard-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7) 0%,transparent 60%);opacity:0;transition:opacity .3s;display:flex;align-items:center;justify-content:center;}
-.vcard:hover .vcard-overlay{opacity:1;}
-.play-circle{width:54px;height:54px;background:rgba(43,168,164,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;}
-.play-circle svg{fill:white;width:20px;height:20px;margin-left:3px;}
-.vcard-body{padding:1.1rem;}
-.vcard-title{font-weight:400;font-size:.95rem;line-height:1.45;margin-bottom:.6rem;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.vcard-meta{font-size:.75rem;color:var(--subtle);display:flex;justify-content:space-between;margin-bottom:.6rem;}
-.ai-tag{display:inline-flex;align-items:center;gap:.3rem;background:rgba(43,168,164,.1);border:1px solid rgba(43,168,164,.2);color:var(--teal2);font-size:.72rem;padding:.25rem .65rem;border-radius:50px;}
-.vcard-feat{position:absolute;top:.75rem;left:.75rem;background:var(--gold);color:var(--bg);font-size:.68rem;font-weight:500;padding:.2rem .6rem;border-radius:50px;}
-
-/* ── ARTICLES ── */
-.articles-sec{background:var(--surface);border-top:1px solid var(--border);padding:5rem 2rem;}
-.articles-in{max-width:1200px;margin:0 auto;}
-.agrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.5rem;margin-top:2.5rem;}
-.acard{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .3s;display:flex;flex-direction:column;}
-.acard:hover{border-color:rgba(43,168,164,.35);transform:translateY(-3px);box-shadow:0 8px 30px rgba(43,168,164,.08);}
-.acard-img{aspect-ratio:2/1;overflow:hidden;background:var(--raised);}
+.vcard:hover .vcard-thumb img{transform:scale(1.04);}
+.vcard-overlay{position:absolute;inset:0;background:rgba(0,0,0,0);transition:background .25s;display:flex;align-items:center;justify-content:center;}
+.vcard:hover .vcard-overlay{background:rgba(0,0,0,.35);}
+.play-btn{width:48px;height:48px;background:rgba(43,168,164,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.8);transition:all .25s;}
+.vcard:hover .play-btn{opacity:1;transform:scale(1);}
+.play-btn svg{fill:white;width:18px;height:18px;margin-left:3px;}
+.vcard-feat{position:absolute;top:.6rem;left:.6rem;background:var(--gold);color:#1a1714;font-size:.65rem;font-weight:600;padding:.2rem .55rem;border-radius:50px;}
+.vcard-body{padding:.9rem;}
+.vcard-title{font-size:.875rem;font-weight:400;line-height:1.4;margin-bottom:.5rem;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.vcard-meta{font-size:.73rem;color:var(--subtle);display:flex;justify-content:space-between;margin-bottom:.5rem;}
+.ai-tag{display:inline-flex;align-items:center;gap:.3rem;background:rgba(43,168,164,.08);border:1px solid rgba(43,168,164,.18);color:var(--teal2);font-size:.7rem;padding:.2rem .55rem;border-radius:50px;}
+.agrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
+.acard{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .25s;display:flex;flex-direction:column;}
+.acard:hover{border-color:rgba(43,168,164,.3);transform:translateY(-2px);}
+.acard-img{aspect-ratio:16/9;overflow:hidden;background:var(--raised);display:flex;align-items:center;justify-content:center;font-size:2rem;}
 .acard-img img{width:100%;height:100%;object-fit:cover;}
-.acard-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;background:linear-gradient(135deg,var(--raised),var(--card));}
-.acard-body{padding:1.25rem;flex:1;display:flex;flex-direction:column;}
-.acat{font-size:.72rem;font-weight:500;letter-spacing:.08em;color:var(--teal);text-transform:uppercase;margin-bottom:.6rem;}
-.acard-title{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:300;line-height:1.4;margin-bottom:.6rem;color:var(--text);}
-.acard-excerpt{font-size:.85rem;color:var(--muted);line-height:1.6;flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
-.acard-foot{display:flex;align-items:center;justify-content:space-between;margin-top:1rem;padding-top:.75rem;border-top:1px solid var(--border);font-size:.78rem;color:var(--subtle);}
-.feat-band{display:inline-block;background:rgba(201,169,97,.1);border:1px solid rgba(201,169,97,.25);color:var(--gold2);font-size:.72rem;padding:.25rem .75rem;border-radius:50px;margin-bottom:.5rem;}
-
-/* ── MODAL ── */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;display:flex;align-items:center;justify-content:center;padding:1.5rem;backdrop-filter:blur(8px);}
-.modal-bg.hidden{display:none;}
-.modal{background:#211d1a;border:1px solid var(--border2);border-radius:20px;max-width:680px;width:100%;max-height:90vh;overflow-y:auto;}
-.modal-top{position:sticky;top:0;background:#211d1a;padding:1rem 1.5rem .5rem;display:flex;justify-content:flex-end;z-index:2;}
-.modal-close{background:rgba(43,168,164,.1);border:1px solid rgba(43,168,164,.2);color:var(--teal);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:background .2s;}
-.modal-close:hover{background:rgba(43,168,164,.2);}
-.modal-body{padding:0 1.75rem 1.75rem;}
-.modal-thumb{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;margin-bottom:1.25rem;}
-.modal-title{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:300;line-height:1.3;margin-bottom:.4rem;}
-.modal-meta{font-size:.82rem;color:var(--muted);margin-bottom:1.25rem;}
-.watch-btn{display:inline-flex;align-items:center;gap:.5rem;background:var(--teal);color:white;border:none;padding:.65rem 1.5rem;border-radius:50px;font-size:.9rem;font-weight:500;cursor:pointer;text-decoration:none;margin-bottom:1.75rem;font-family:'DM Sans',sans-serif;transition:all .2s;}
-.watch-btn:hover{background:var(--teal2);}
-.sum-box{background:rgba(43,168,164,.05);border:1px solid rgba(43,168,164,.15);border-radius:12px;padding:1.5rem;}
-.sum-label{font-size:.72rem;font-weight:500;letter-spacing:.1em;color:var(--teal);text-transform:uppercase;display:flex;align-items:center;gap:.5rem;margin-bottom:1.25rem;}
+.acard-body{padding:1rem;flex:1;display:flex;flex-direction:column;}
+.acat{font-size:.68rem;font-weight:500;letter-spacing:.08em;color:var(--teal);text-transform:uppercase;margin-bottom:.4rem;}
+.acard-title{font-family:'Fraunces',serif;font-size:1rem;font-weight:300;line-height:1.4;margin-bottom:.5rem;color:var(--text);}
+.acard-excerpt{font-size:.8rem;color:var(--muted);line-height:1.55;flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.acard-foot{display:flex;align-items:center;justify-content:space-between;margin-top:.75rem;padding-top:.6rem;border-top:1px solid var(--border);font-size:.73rem;color:var(--subtle);}
+/* VIDEO PAGE */
+#videoPage{display:none;position:fixed;inset:0;background:var(--bg);z-index:300;overflow-y:auto;padding-top:60px;}
+#videoPage.active{display:block;}
+.vp-inner{max-width:1100px;margin:0 auto;padding:1.5rem;}
+.vp-back{display:inline-flex;align-items:center;gap:.5rem;background:rgba(43,168,164,.1);border:1px solid rgba(43,168,164,.2);color:var(--teal);padding:.45rem 1rem;border-radius:50px;cursor:pointer;font-size:.85rem;margin-bottom:1.25rem;font-family:'DM Sans',sans-serif;border:none;}
+.vp-back:hover{background:rgba(43,168,164,.18);}
+.vp-layout{display:grid;grid-template-columns:1fr 350px;gap:1.5rem;align-items:start;}
+.vp-player{background:#000;border-radius:var(--r);overflow:hidden;aspect-ratio:16/9;}
+.vp-player iframe{width:100%;height:100%;border:none;display:block;}
+.vp-title{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:300;line-height:1.3;margin:1rem 0 .4rem;}
+.vp-meta{font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;}
+.vp-meta a{color:var(--teal);text-decoration:none;}
+.vp-desc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1rem;font-size:.875rem;color:var(--muted);line-height:1.7;max-height:120px;overflow:hidden;position:relative;}
+.vp-desc.expanded{max-height:2000px;}
+.vp-desc-fade{position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(transparent,var(--surface));}
+.vp-desc.expanded .vp-desc-fade{display:none;}
+.vp-desc-btn{color:var(--teal);font-size:.8rem;margin-top:.5rem;cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;padding:0;}
+.vp-summary{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;position:sticky;top:76px;}
+.vp-sum-hd{font-size:.7rem;font-weight:500;letter-spacing:.1em;color:var(--teal);text-transform:uppercase;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border);}
 .sum-pts{list-style:none;}
-.sum-pts li{display:flex;gap:.75rem;padding:.65rem 0;border-bottom:1px solid rgba(43,168,164,.07);font-size:.9rem;color:var(--muted);line-height:1.6;}
+.sum-pts li{display:flex;gap:.65rem;padding:.6rem 0;border-bottom:1px solid rgba(43,168,164,.06);font-size:.875rem;color:var(--muted);line-height:1.55;}
 .sum-pts li:last-child{border-bottom:none;}
-.bullet{min-width:24px;height:24px;background:rgba(43,168,164,.15);border:1px solid rgba(43,168,164,.3);color:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:600;margin-top:1px;flex-shrink:0;}
-.art-modal-img{width:100%;aspect-ratio:21/9;object-fit:cover;border-radius:10px;margin-bottom:1.25rem;}
-.art-cat{font-size:.72rem;font-weight:500;letter-spacing:.1em;color:var(--teal);text-transform:uppercase;margin-bottom:.5rem;}
-.art-title{font-family:'Fraunces',serif;font-size:1.8rem;font-weight:300;line-height:1.25;margin-bottom:.75rem;}
-.art-meta{font-size:.8rem;color:var(--muted);margin-bottom:1.5rem;display:flex;gap:1.5rem;flex-wrap:wrap;}
-.art-body{color:var(--muted);font-size:.95rem;line-height:1.8;}
-.art-body h2,.art-body h3{font-family:'Fraunces',serif;font-weight:300;color:var(--text);margin:1.5rem 0 .75rem;}
+.bullet{min-width:22px;height:22px;background:rgba(43,168,164,.12);border:1px solid rgba(43,168,164,.25);color:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:600;flex-shrink:0;margin-top:1px;}
+.vp-related{margin-top:1.25rem;}
+.vp-rel-hd{font-size:.7rem;font-weight:500;letter-spacing:.1em;color:var(--subtle);text-transform:uppercase;margin-bottom:.75rem;}
+.rel-card{display:flex;gap:.75rem;cursor:pointer;padding:.6rem;border-radius:8px;transition:background .2s;margin-bottom:.4rem;}
+.rel-card:hover{background:rgba(43,168,164,.06);}
+.rel-thumb{width:88px;height:52px;border-radius:6px;object-fit:cover;background:var(--raised);flex-shrink:0;}
+.rel-title{font-size:.8rem;line-height:1.35;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.rel-date{font-size:.7rem;color:var(--subtle);margin-top:.2rem;}
+/* ARTICLE MODAL */
+.amodal-bg{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;display:flex;align-items:center;justify-content:center;padding:1.5rem;backdrop-filter:blur(8px);}
+.amodal-bg.hidden{display:none;}
+.amodal{background:#211d1a;border:1px solid var(--border2);border-radius:18px;max-width:680px;width:100%;max-height:90vh;overflow-y:auto;}
+.amodal-top{position:sticky;top:0;background:#211d1a;padding:.75rem 1.25rem;display:flex;justify-content:flex-end;border-bottom:1px solid var(--border);}
+.amodal-close{background:rgba(43,168,164,.1);border:1px solid rgba(43,168,164,.2);color:var(--teal);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;}
+.amodal-body{padding:1.5rem;}
+.art-img{width:100%;aspect-ratio:21/9;object-fit:cover;border-radius:10px;margin-bottom:1.25rem;}
+.art-cat{font-size:.7rem;font-weight:500;letter-spacing:.1em;color:var(--teal);text-transform:uppercase;margin-bottom:.4rem;}
+.art-title{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:300;line-height:1.25;margin-bottom:.65rem;}
+.art-meta{font-size:.8rem;color:var(--muted);margin-bottom:1.25rem;display:flex;gap:1.25rem;flex-wrap:wrap;}
+.art-body{color:var(--muted);font-size:.925rem;line-height:1.8;}
+.art-body h2,.art-body h3{font-family:'Fraunces',serif;font-weight:300;color:var(--text);margin:1.5rem 0 .65rem;}
 .art-body p{margin-bottom:1rem;}
 .art-body ul,.art-body ol{margin:0 0 1rem 1.5rem;}
-.art-body li{margin-bottom:.4rem;}
 .art-body strong{color:var(--text);}
-
-/* ── LOADING ── */
-.loading-grid{display:flex;justify-content:center;align-items:center;padding:5rem 2rem;gap:.75rem;}
+.ldots{display:flex;gap:.5rem;justify-content:center;padding:2.5rem;}
 .ldot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:ldot 1.2s ease-in-out infinite;}
-.ldot:nth-child(2){animation-delay:.2s;}
-.ldot:nth-child(3){animation-delay:.4s;}
+.ldot:nth-child(2){animation-delay:.2s;} .ldot:nth-child(3){animation-delay:.4s;}
 @keyframes ldot{0%,80%,100%{transform:scale(.5);opacity:.3;}40%{transform:scale(1);opacity:1;}}
-.empty-state{text-align:center;padding:5rem 2rem;color:var(--subtle);}
-.empty-state .icon{font-size:3rem;margin-bottom:1rem;}
-.err-bar{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);color:#fca5a5;border-radius:10px;padding:.75rem 1.25rem;font-size:.85rem;margin-top:1rem;}
-
-/* ── FEATURES ── */
-.features{background:var(--bg);padding:5rem 2rem;border-top:1px solid var(--border);}
-.features-in{max-width:1100px;margin:0 auto;text-align:center;}
-.features-in h2{font-family:'Fraunces',serif;font-size:2rem;font-weight:300;margin-bottom:.5rem;}
-.features-in h2 em{color:var(--teal);font-style:italic;}
-.features-sub{color:var(--muted);font-size:.95rem;margin-bottom:3rem;}
-.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;}
-.feat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.75rem;text-align:left;transition:border-color .2s;}
-.feat-card:hover{border-color:var(--border2);}
-.feat-icon{font-size:1.75rem;margin-bottom:1rem;}
-.feat-card h3{font-size:1rem;font-weight:500;margin-bottom:.5rem;color:var(--text);}
-.feat-card p{color:var(--muted);font-size:.875rem;line-height:1.6;}
-
-/* ── FOOTER ── */
-footer{background:var(--surface);border-top:1px solid var(--border);padding:3rem 2rem;text-align:center;}
-.footer-logo{font-family:'Fraunces',serif;font-size:1.4rem;color:var(--text);margin-bottom:.5rem;}
-.footer-logo .th{background:var(--teal);color:var(--bg);padding:0 4px;border-radius:4px;font-style:italic;}
-footer p{color:var(--subtle);font-size:.82rem;margin-top:.5rem;}
-
-@media(max-width:768px){
-  h1{font-size:2.5rem;}
-  .hero-stats{gap:2rem;}
-  .vgrid,.agrid,.feat-grid{grid-template-columns:1fr;}
-  nav .nav-links{display:none;}
+.empty-s{text-align:center;padding:3rem;color:var(--subtle);font-size:.9rem;}
+footer{background:var(--surface);border-top:1px solid var(--border);padding:2rem 1.5rem;text-align:center;margin-top:2rem;}
+.footer-logo{font-family:'Fraunces',serif;font-size:1.3rem;color:var(--text);margin-bottom:.4rem;}
+.footer-logo .th{background:var(--teal);color:#1a1714;padding:0 3px;border-radius:3px;font-style:italic;}
+footer p{color:var(--subtle);font-size:.8rem;margin-top:.3rem;}
+@media(max-width:900px){
+  .app-layout{grid-template-columns:1fr;}
+  .sidebar{position:static;height:auto;}
+  .cat-list{display:flex;flex-wrap:wrap;gap:.35rem;padding:.5rem;}
+  .vgrid,.agrid{grid-template-columns:repeat(2,1fr);}
+  .vp-layout{grid-template-columns:1fr;}
+  .vp-summary{position:static;}
 }
+@media(max-width:560px){.vgrid,.agrid{grid-template-columns:1fr;}.nav-search{display:none;}}
 </style>
 </head>
 <body>
 
 <nav>
   <div class="nav-in">
-    <div class="logo">heal<span class="th">th</span>ink</div>
-    <ul class="nav-links">
-      <li><a href="#videos">Videos</a></li>
-      <li><a href="#articles">Articles</a></li>
-      <li><a href="#features">About</a></li>
-    </ul>
-    <button class="nav-btn" onclick="document.getElementById('search-sec').scrollIntoView({behavior:'smooth'})">Explore</button>
+    <div class="logo" onclick="showHome()">heal<span class="th">th</span>ink</div>
+    <div class="nav-search">
+      <input type="text" id="navSearch" placeholder="Search health videos…" onkeydown="if(event.key==='Enter')doSearch()"/>
+      <button onclick="doSearch()">Search</button>
+    </div>
+    <div class="nav-links">
+      <button class="nav-link active" id="navVideos" onclick="switchTab('videos')">Videos</button>
+      <button class="nav-link" id="navArticles" onclick="switchTab('articles')">Articles</button>
+    </div>
   </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-line"></div>
-  <div class="hero-in">
-    <div class="hero-pill">Health Awareness Platform</div>
-    <h1>Your <em>Health</em><br><strong>Journey</strong> Starts Here</h1>
-    <p class="hero-sub">Curated health videos in Hindi, expert articles, and AI-powered summaries — everything you need to understand your wellbeing in simple language.</p>
-    <div class="hero-actions">
-      <button class="btn-t" onclick="document.getElementById('search-sec').scrollIntoView({behavior:'smooth'})">Search Videos</button>
-      <button class="btn-o" onclick="document.getElementById('articles').scrollIntoView({behavior:'smooth'})">Read Articles</button>
-    </div>
-    <div class="hero-stats">
-      <div class="stat"><span class="stat-n" id="statVideos">—</span><div class="stat-l">Health Videos</div></div>
-      <div class="stat"><span class="stat-n" id="statArticles">—</span><div class="stat-l">Articles</div></div>
-      <div class="stat"><span class="stat-n">AI</span><div class="stat-l">Powered Summaries</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- SEARCH -->
-<section class="search-sec" id="search-sec">
-  <div class="search-in">
-    <div class="sec-label">Video Library</div>
-    <h2 class="sec-title">Search <em>Health Videos</em></h2>
-    <p class="sec-sub">Find videos by topic — diabetes, nutrition, yoga, heart health, allergy and more</p>
-    <div class="s-bar">
-      <input type="text" id="searchInput" placeholder="e.g. diabetes, एलर्जी, yoga, heart health…" onkeydown="if(event.key==='Enter')searchVideos()"/>
-      <button id="searchBtn" onclick="searchVideos()">Search</button>
-    </div>
-    <div class="cats" id="catChips"></div>
-    <div id="searchErr" class="err-bar" style="display:none;"></div>
-  </div>
-</section>
-
-<!-- VIDEOS -->
-<section class="vgrid-sec" id="videos">
-  <div class="row-hd">
-    <h2 id="vgridTitle">Latest <em>Videos</em></h2>
-    <div class="badge" id="vgridCount" style="display:none;"></div>
-  </div>
-  <div id="vgridLoading" class="loading-grid"><div class="ldot"></div><div class="ldot"></div><div class="ldot"></div></div>
-  <div class="vgrid" id="vgrid" style="display:none;"></div>
-  <div id="vgridEmpty" class="empty-state" style="display:none;"><div class="icon">🎬</div><p>No videos found. Try different keywords.</p></div>
-</section>
-
-<!-- ARTICLES -->
-<section class="articles-sec" id="articles">
-  <div class="articles-in">
-    <div class="row-hd">
-      <div>
-        <div class="sec-label">Health Insights</div>
-        <h2 class="sec-title" style="margin-bottom:.5rem;">Latest <em>Articles</em></h2>
+<div id="homePage">
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-title">📂 Categories</div>
+        <div class="cat-list" id="catList">
+          <div class="cat-item active" onclick="filterCat('')">All <span class="cnt" id="cntAll">—</span></div>
+        </div>
       </div>
-      <div class="badge" id="artCount" style="display:none;"></div>
+      <div class="sidebar-section">
+        <div class="sidebar-title">🔥 Trending</div>
+        <div class="cat-list" id="trendingList"><div style="padding:.75rem;font-size:.8rem;color:var(--subtle);">Loading…</div></div>
+      </div>
+    </aside>
+
+    <div class="main-content">
+      <div id="tabVideos">
+        <div class="sec-hd">
+          <h2 id="vSecTitle">Latest <em>Videos</em> <span class="sec-badge" id="vBadge" style="display:none;"></span></h2>
+        </div>
+        <div id="vLoading" class="ldots"><div class="ldot"></div><div class="ldot"></div><div class="ldot"></div></div>
+        <div class="vgrid" id="vgrid" style="display:none;"></div>
+        <div id="vEmpty" class="empty-s" style="display:none;">No videos found.</div>
+      </div>
+
+      <div id="tabArticles" style="display:none;">
+        <div class="sec-hd">
+          <h2>Health <em>Articles</em> <span class="sec-badge" id="aBadge" style="display:none;"></span></h2>
+        </div>
+        <div id="aLoading" class="ldots"><div class="ldot"></div><div class="ldot"></div><div class="ldot"></div></div>
+        <div class="agrid" id="agrid" style="display:none;"></div>
+        <div id="aEmpty" class="empty-s" style="display:none;">No articles published yet.</div>
+      </div>
     </div>
-    <div id="artLoading" class="loading-grid"><div class="ldot"></div><div class="ldot"></div><div class="ldot"></div></div>
-    <div class="agrid" id="agrid" style="display:none;"></div>
-    <div id="artEmpty" class="empty-state" style="display:none;"><div class="icon">📄</div><p>No articles published yet.</p></div>
   </div>
-</section>
+  <footer>
+    <div class="footer-logo">heal<span class="th">th</span>ink</div>
+    <p>Health Awareness Platform · Hindi Health Videos · AI-Powered Summaries</p>
+    <p><a href="https://www.youtube.com/@healthink" target="_blank" style="color:var(--teal);text-decoration:none;">YouTube @healthink</a></p>
+  </footer>
+</div>
 
-<!-- FEATURES -->
-<section class="features" id="features">
-  <div class="features-in">
-    <h2>Why <em>Healthink?</em></h2>
-    <p class="features-sub">Everything you need to learn about health in simple, easy language</p>
-    <div class="feat-grid">
-      <div class="feat-card"><div class="feat-icon">🔍</div><h3>Smart Search</h3><p>Search Hindi health videos by topic — find exactly what you need instantly with keyword matching.</p></div>
-      <div class="feat-card"><div class="feat-icon">🤖</div><h3>AI Summaries</h3><p>Every video gets an AI-generated point-wise summary from real video transcripts so you understand before watching.</p></div>
-      <div class="feat-card"><div class="feat-icon">📰</div><h3>Health Articles</h3><p>Expert health articles in simple language — read, learn, and share with your family and friends.</p></div>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <div class="footer-logo">heal<span class="th">th</span>ink</div>
-  <p>Health Awareness Platform · Hindi Health Videos · AI-Powered Summaries</p>
-  <p style="margin-top:.5rem;">© 2025 Healthink · <a href="https://www.youtube.com/@healthink" target="_blank" style="color:var(--teal);text-decoration:none;">YouTube @healthink</a></p>
-</footer>
-
-<!-- VIDEO MODAL -->
-<div class="modal-bg hidden" id="vModal" onclick="closeModal('vModal',event)">
-  <div class="modal">
-    <div class="modal-top"><button class="modal-close" onclick="closeModalBtn('vModal')">✕</button></div>
-    <div class="modal-body">
-      <img class="modal-thumb" id="mThumb" src="" alt=""/>
-      <h2 class="modal-title" id="mTitle"></h2>
-      <div class="modal-meta" id="mMeta"></div>
-      <a class="watch-btn" id="mWatch" href="#" target="_blank">
-        <svg viewBox="0 0 24 24" width="16" height="16"><path d="M8 5v14l11-7z"/></svg>
-        Watch on YouTube
-      </a>
-      <div class="sum-box">
-        <div class="sum-label">✦ AI Key Takeaways</div>
-        <div id="sumContent"><div class="loading-grid"><div class="ldot"></div><div class="ldot"></div><div class="ldot"></div></div></div>
+<!-- VIDEO SINGLE PAGE -->
+<div id="videoPage">
+  <div class="vp-inner">
+    <button class="vp-back" onclick="showHome()">← Back to Videos</button>
+    <div class="vp-layout">
+      <div>
+        <div class="vp-player">
+          <iframe id="vpIframe" src="" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+        </div>
+        <h1 class="vp-title" id="vpTitle"></h1>
+        <div class="vp-meta" id="vpMeta"></div>
+        <div class="vp-desc" id="vpDesc">
+          <span id="vpDescText"></span>
+          <div class="vp-desc-fade"></div>
+        </div>
+        <button class="vp-desc-btn" onclick="toggleDesc()">Show more ▾</button>
+      </div>
+      <div>
+        <div class="vp-summary">
+          <div class="vp-sum-hd">✦ AI Key Takeaways</div>
+          <div id="vpSummary"><div class="ldots"><div class="ldot"></div><div class="ldot"></div><div class="ldot"></div></div></div>
+        </div>
+        <div class="vp-related">
+          <div class="vp-rel-hd">Related Videos</div>
+          <div id="vpRelated"></div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <!-- ARTICLE MODAL -->
-<div class="modal-bg hidden" id="aModal" onclick="closeModal('aModal',event)">
-  <div class="modal">
-    <div class="modal-top"><button class="modal-close" onclick="closeModalBtn('aModal')">✕</button></div>
-    <div class="modal-body" id="aModalBody">
-      <div class="loading-grid"><div class="ldot"></div><div class="ldot"></div><div class="ldot"></div></div>
-    </div>
+<div class="amodal-bg hidden" id="aModal" onclick="if(event.target===this){this.classList.add('hidden');document.body.style.overflow='';}">
+  <div class="amodal">
+    <div class="amodal-top"><button class="amodal-close" onclick="document.getElementById('aModal').classList.add('hidden');document.body.style.overflow=''">✕</button></div>
+    <div class="amodal-body" id="aModalBody"></div>
   </div>
 </div>
 
 <script>
 const API = (window.BACKEND_URL || 'https://wellnesshub-2tq3.onrender.com') + '/api';
-let allVideos = [];
+let allVideos=[], allArticles=[], currentCat='';
 
 async function init(){
-  await Promise.all([loadStats(), loadVideos(), loadArticles(), loadCategories()]);
+  await Promise.all([loadVideos(), loadArticles()]);
 }
 
-async function loadStats(){
-  try{
-    const [vr,ar] = await Promise.all([
-      fetch(`${API}/videos?limit=1`).then(r=>r.json()),
-      fetch(`${API}/articles?limit=1`).then(r=>r.json())
-    ]);
-    document.getElementById('statVideos').textContent = vr.total||'—';
-    document.getElementById('statArticles').textContent = ar.total||'—';
-  }catch{}
+function switchTab(tab){
+  document.getElementById('tabVideos').style.display   = tab==='videos'   ? 'block':'none';
+  document.getElementById('tabArticles').style.display = tab==='articles' ? 'block':'none';
+  document.getElementById('navVideos').classList.toggle('active',tab==='videos');
+  document.getElementById('navArticles').classList.toggle('active',tab==='articles');
 }
 
-async function loadCategories(){
+async function loadVideos(query='',cat=''){
+  document.getElementById('vLoading').style.display='flex';
+  document.getElementById('vgrid').style.display='none';
+  document.getElementById('vEmpty').style.display='none';
   try{
-    const cats = await fetch(`${API}/articles/categories`).then(r=>r.json());
-    const chips = document.getElementById('catChips');
-    chips.innerHTML = cats.map(c=>`<button class="cat-chip" onclick="filterByCategory('${c}')">${c}</button>`).join('');
-  }catch{}
-}
-
-async function loadVideos(query='',category=''){
-  showVState('loading');
-  try{
-    let url = `${API}/videos?limit=24`;
+    let url=`${API}/videos?limit=50`;
     if(query) url+=`&q=${encodeURIComponent(query)}`;
-    if(category) url+=`&category=${encodeURIComponent(category)}`;
+    if(cat)   url+=`&category=${encodeURIComponent(cat)}`;
     const data = await fetch(url).then(r=>r.json());
-    allVideos = data.items||data;
-    if(!allVideos.length){showVState('empty');return;}
-    renderVideos(allVideos);
-    const cnt = document.getElementById('vgridCount');
-    cnt.textContent=(data.total||allVideos.length)+' videos';
-    cnt.style.display='block';
-    document.getElementById('vgridTitle').innerHTML = query?`Results for <em>"${esc(query)}"</em>`:'Latest <em>Videos</em>';
-    showVState('grid');
+    allVideos = data.items||data||[];
+    renderVideos(allVideos, query, cat);
+    buildSidebar();
   }catch(e){
-    showVState('empty');
-    document.getElementById('searchErr').textContent='⚠ '+e.message;
-    document.getElementById('searchErr').style.display='block';
+    document.getElementById('vLoading').style.display='none';
+    document.getElementById('vEmpty').textContent='Error: '+e.message;
+    document.getElementById('vEmpty').style.display='block';
   }
 }
 
-function renderVideos(videos){
-  document.getElementById('vgrid').innerHTML = videos.map((v,i)=>`
+function renderVideos(videos, query='', cat=''){
+  document.getElementById('vLoading').style.display='none';
+  const badge=document.getElementById('vBadge');
+  badge.textContent=videos.length+' videos'; badge.style.display=videos.length?'inline':'none';
+  document.getElementById('vSecTitle').innerHTML = query
+    ? `Results for <em>"${esc(query)}"</em> <span class="sec-badge" id="vBadge">${videos.length} videos</span>`
+    : cat ? `<em>${esc(cat)}</em> Videos <span class="sec-badge">${videos.length}</span>`
+    : `Latest <em>Videos</em> <span class="sec-badge">${videos.length}</span>`;
+  if(!videos.length){document.getElementById('vEmpty').style.display='block';return;}
+  document.getElementById('vgrid').innerHTML=videos.map(v=>`
     <div class="vcard" onclick="openVideo('${v._id}')">
       ${v.featured?'<div class="vcard-feat">Featured</div>':''}
       <div class="vcard-thumb">
         <img src="${v.thumbnail||''}" alt="${esc(v.title)}" loading="lazy" onerror="this.style.display='none'"/>
-        <div class="vcard-overlay"><div class="play-circle"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+        <div class="vcard-overlay"><div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
       </div>
       <div class="vcard-body">
         <div class="vcard-title">${esc(v.title)}</div>
@@ -373,114 +288,139 @@ function renderVideos(videos){
         <div class="ai-tag">✦ AI Summary</div>
       </div>
     </div>`).join('');
+  document.getElementById('vgrid').style.display='grid';
 }
 
-function showVState(s){
-  document.getElementById('vgridLoading').style.display=s==='loading'?'flex':'none';
-  document.getElementById('vgrid').style.display=s==='grid'?'grid':'none';
-  document.getElementById('vgridEmpty').style.display=s==='empty'?'block':'none';
+function buildSidebar(){
+  const counts={};
+  allVideos.forEach(v=>{const c=v.category||'General';counts[c]=(counts[c]||0)+1;});
+  const cats=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  const list=document.getElementById('catList');
+  list.innerHTML=`<div class="cat-item ${!currentCat?'active':''}" onclick="filterCat('')">All <span class="cnt">${allVideos.length}</span></div>`;
+  cats.forEach(([cat,cnt])=>{
+    list.innerHTML+=`<div class="cat-item ${currentCat===cat?'active':''}" onclick="filterCat('${esc(cat)}')">${esc(cat)} <span class="cnt">${cnt}</span></div>`;
+  });
+  const trending=[...allVideos].sort((a,b)=>(b.viewCount||0)-(a.viewCount||0)).slice(0,5);
+  document.getElementById('trendingList').innerHTML=trending.length
+    ? trending.map(v=>`
+        <div class="cat-item" onclick="openVideo('${v._id}')" style="flex-direction:column;align-items:flex-start;gap:.1rem;">
+          <div style="font-size:.8rem;color:var(--text);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${esc(v.title)}</div>
+          <div style="font-size:.7rem;color:var(--subtle);">${(v.viewCount||0).toLocaleString()} views</div>
+        </div>`).join('')
+    : '<div style="padding:.75rem;font-size:.8rem;color:var(--subtle);">No data yet</div>';
 }
 
-async function searchVideos(){
-  const q = document.getElementById('searchInput').value.trim();
-  document.getElementById('searchErr').style.display='none';
-  document.getElementById('catChips').querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));
-  await loadVideos(q);
-  document.getElementById('videos').scrollIntoView({behavior:'smooth'});
-}
-
-async function filterByCategory(cat){
-  document.getElementById('searchInput').value='';
-  document.getElementById('catChips').querySelectorAll('.cat-chip').forEach(c=>c.classList.toggle('active',c.textContent===cat));
-  await loadVideos('',cat);
-  document.getElementById('videos').scrollIntoView({behavior:'smooth'});
+function filterCat(cat){
+  currentCat=cat;
+  switchTab('videos');
+  loadVideos('',cat);
 }
 
 async function openVideo(id){
-  const video = allVideos.find(v=>v._id===id);
-  if(!video) return;
-  document.getElementById('mThumb').src=video.thumbnail||'';
-  document.getElementById('mTitle').textContent=video.title;
-  document.getElementById('mMeta').textContent=(video.channelTitle||'')+' · '+fmtDate(video.publishedAt);
-  document.getElementById('mWatch').href='https://www.youtube.com/watch?v='+video.youtubeId;
-  document.getElementById('sumContent').innerHTML='<div class="loading-grid"><div class="ldot"></div><div class="ldot"></div><div class="ldot"></div></div>';
-  document.getElementById('vModal').classList.remove('hidden');
-  document.body.style.overflow='hidden';
+  const video=allVideos.find(v=>v._id===id);
+  if(!video)return;
+  document.getElementById('homePage').style.display='none';
+  document.getElementById('videoPage').classList.add('active');
+  window.scrollTo(0,0);
+  document.getElementById('vpIframe').src=`https://www.youtube.com/embed/${video.youtubeId}?autoplay=1&rel=0`;
+  document.getElementById('vpTitle').textContent=video.title;
+  document.getElementById('vpMeta').innerHTML=
+    `<span>📺 ${esc(video.channelTitle||'Healthink')}</span>`+
+    `<span>📅 ${fmtDate(video.publishedAt)}</span>`+
+    `<span>${(video.viewCount||0).toLocaleString()} views</span>`+
+    `<a href="https://www.youtube.com/watch?v=${video.youtubeId}" target="_blank">Watch on YouTube ↗</a>`;
+  document.getElementById('vpDescText').textContent=video.description||'No description.';
+  document.getElementById('vpDesc').classList.remove('expanded');
+  document.querySelector('.vp-desc-btn').textContent='Show more ▾';
+  const related=allVideos.filter(v=>v._id!==id&&v.category===video.category).slice(0,6);
+  document.getElementById('vpRelated').innerHTML=related.map(v=>`
+    <div class="rel-card" onclick="openVideo('${v._id}')">
+      <img class="rel-thumb" src="${v.thumbnail||''}" alt="" onerror="this.style.display='none'"/>
+      <div class="rel-info">
+        <div class="rel-title">${esc(v.title)}</div>
+        <div class="rel-date">${fmtDate(v.publishedAt)}</div>
+      </div>
+    </div>`).join('');
+  document.getElementById('vpSummary').innerHTML='<div class="ldots"><div class="ldot"></div><div class="ldot"></div><div class="ldot"></div></div>';
   try{
-    const {points} = await fetch(`${API}/videos/${id}/summary`).then(r=>r.json());
-    document.getElementById('sumContent').innerHTML=`<ul class="sum-pts">${
+    const {points}=await fetch(`${API}/videos/${id}/summary`).then(r=>r.json());
+    document.getElementById('vpSummary').innerHTML=`<ul class="sum-pts">${
       points.map((p,i)=>`<li><div class="bullet">${i+1}</div><span>${esc(p)}</span></li>`).join('')
     }</ul>`;
-  }catch(e){
-    document.getElementById('sumContent').innerHTML=`<p style="color:var(--muted);font-size:.85rem;">Could not load summary. ${e.message}</p>`;
+  }catch{
+    document.getElementById('vpSummary').innerHTML='<p style="color:var(--muted);font-size:.85rem;padding:.5rem;">Summary unavailable.</p>';
   }
 }
 
+function showHome(){
+  document.getElementById('videoPage').classList.remove('active');
+  document.getElementById('homePage').style.display='block';
+  document.getElementById('vpIframe').src='';
+}
+
+function toggleDesc(){
+  const el=document.getElementById('vpDesc');
+  const exp=el.classList.toggle('expanded');
+  document.querySelector('.vp-desc-btn').textContent=exp?'Show less ▴':'Show more ▾';
+}
+
+function doSearch(){
+  const q=document.getElementById('navSearch').value.trim();
+  if(!q)return;
+  showHome();switchTab('videos');currentCat='';loadVideos(q,'');
+}
+
 async function loadArticles(){
-  document.getElementById('artLoading').style.display='flex';
-  document.getElementById('agrid').style.display='none';
-  document.getElementById('artEmpty').style.display='none';
   try{
-    const res = await fetch(`${API}/articles?limit=50`);
-    const data = await res.json();
-    if(!res.ok) throw new Error(data.error||'Failed');
-    const arts = data.items||[];
-    if(!arts.length){document.getElementById('artLoading').style.display='none';document.getElementById('artEmpty').style.display='block';return;}
-    const cnt = document.getElementById('artCount');
-    cnt.textContent=(data.total||arts.length)+' articles';
-    cnt.style.display='block';
-    document.getElementById('agrid').innerHTML = arts.map(a=>`
+    const res=await fetch(`${API}/articles?limit=50`);
+    const data=await res.json();
+    allArticles=data.items||[];
+    document.getElementById('aLoading').style.display='none';
+    if(!allArticles.length){document.getElementById('aEmpty').style.display='block';return;}
+    const badge=document.getElementById('aBadge');
+    badge.textContent=allArticles.length+' articles';badge.style.display='inline';
+    document.getElementById('agrid').innerHTML=allArticles.map(a=>`
       <div class="acard" onclick="openArticle('${a._id}')">
-        <div class="acard-img">${
-          a.coverImage
-          ?`<img src="${esc(a.coverImage)}" alt="${esc(a.title)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=acard-img-placeholder>🏥</div>'"/>`
-          :'<div class="acard-img-placeholder">🏥</div>'
-        }</div>
+        <div class="acard-img">${a.coverImage?`<img src="${esc(a.coverImage)}" loading="lazy" onerror="this.parentElement.innerHTML='🏥'"/>`:'🏥'}</div>
         <div class="acard-body">
-          ${a.featured?'<div class="feat-band">Featured</div>':''}
           <div class="acat">${esc(a.category||'General')}</div>
           <div class="acard-title">${esc(a.title)}</div>
           <div class="acard-excerpt">${esc(a.excerpt||'')}</div>
           <div class="acard-foot"><span>${esc(a.author||'Healthink')}</span><span>${a.readTime||3} min read</span></div>
         </div>
       </div>`).join('');
-    document.getElementById('artLoading').style.display='none';
     document.getElementById('agrid').style.display='grid';
   }catch(e){
-    console.error('loadArticles:',e.message);
-    document.getElementById('artLoading').style.display='none';
-    document.getElementById('artEmpty').style.display='block';
-    document.getElementById('artEmpty').innerHTML=`<div class="icon">⚠️</div><p style="color:var(--muted)">Could not load articles.<br><small>${e.message}</small></p>`;
+    document.getElementById('aLoading').style.display='none';
+    document.getElementById('aEmpty').style.display='block';
   }
 }
 
 async function openArticle(id){
-  const body = document.getElementById('aModalBody');
-  body.innerHTML='<div class="loading-grid"><div class="ldot"></div><div class="ldot"></div><div class="ldot"></div></div>';
+  const body=document.getElementById('aModalBody');
+  body.innerHTML='<div class="ldots"><div class="ldot"></div><div class="ldot"></div><div class="ldot"></div></div>';
   document.getElementById('aModal').classList.remove('hidden');
   document.body.style.overflow='hidden';
   try{
-    const res = await fetch(`${API}/articles/id/${id}`);
-    const full = await res.json();
-    if(!res.ok) throw new Error(full.error||'Not found');
+    const res=await fetch(`${API}/articles/id/${id}`);
+    const full=await res.json();
+    if(!res.ok)throw new Error(full.error||'Not found');
     body.innerHTML='';
-    if(full.coverImage){const img=document.createElement('img');img.className='art-modal-img';img.src=full.coverImage;img.alt=full.title||'';img.onerror=()=>img.style.display='none';body.appendChild(img);}
+    if(full.coverImage){const img=document.createElement('img');img.className='art-img';img.src=full.coverImage;img.onerror=()=>img.style.display='none';body.appendChild(img);}
     const cat=document.createElement('div');cat.className='art-cat';cat.textContent=full.category||'General';body.appendChild(cat);
-    const title=document.createElement('h2');title.className='art-title';title.textContent=full.title||'';body.appendChild(title);
-    const meta=document.createElement('div');meta.className='art-meta';
-    meta.innerHTML='<span>✍ '+esc(full.author||'Healthink')+'</span><span>📅 '+fmtDate(full.createdAt)+'</span><span>⏱ '+(full.readTime||3)+' min read</span>';
-    body.appendChild(meta);
-    const artBody=document.createElement('div');artBody.className='art-body';artBody.innerHTML=full.content||'<p>No content.</p>';body.appendChild(artBody);
+    const t=document.createElement('h2');t.className='art-title';t.textContent=full.title||'';body.appendChild(t);
+    const m=document.createElement('div');m.className='art-meta';
+    m.innerHTML='<span>✍ '+esc(full.author||'Healthink')+'</span><span>📅 '+fmtDate(full.createdAt)+'</span><span>⏱ '+(full.readTime||3)+' min read</span>';
+    body.appendChild(m);
+    const ab=document.createElement('div');ab.className='art-body';ab.innerHTML=full.content||'<p>No content.</p>';body.appendChild(ab);
   }catch(e){
-    body.innerHTML=`<p style="color:var(--muted);padding:2rem;text-align:center;">Could not load article.<br><small>${e.message}</small></p>`;
+    body.innerHTML=`<p style="color:var(--muted);padding:2rem;text-align:center;">${e.message}</p>`;
   }
 }
 
-function closeModal(id,e){if(e.target===document.getElementById(id))closeModalBtn(id);}
-function closeModalBtn(id){document.getElementById(id).classList.add('hidden');document.body.style.overflow='';}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function fmtDate(s){if(!s)return'';return new Date(s).toLocaleDateString('en-IN',{year:'numeric',month:'short',day:'numeric'});}
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModalBtn('vModal');closeModalBtn('aModal');}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.getElementById('aModal').classList.add('hidden');document.body.style.overflow='';}});
 init();
 </script>
 </body>
