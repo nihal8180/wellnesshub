@@ -156,6 +156,35 @@
     }
     .video-close:hover { background: var(--teal); }
 
+    /* ---------- In-page article reader ---------- */
+    .reader-modal {
+      position: fixed; inset: 0; z-index: 1100;
+      display: none; justify-content: center; align-items: flex-start;
+      padding: 24px 16px; background: rgba(3, 20, 22, .88); overflow-y: auto;
+    }
+    .reader-modal.open { display: flex; }
+    .reader-box { position: relative; width: min(860px, 100%); margin: auto 0; background: #fff; border-radius: 12px; overflow: hidden; }
+    .reader-close {
+      position: absolute; top: 12px; right: 12px; z-index: 2;
+      width: 38px; height: 38px; border: 0; border-radius: 50%;
+      background: rgba(0,0,0,.55); color: #fff; font-size: 20px;
+    }
+    .reader-close:hover { background: var(--teal); }
+    .reader-cover { display: block; width: 100%; max-height: 420px; object-fit: cover; background: #e5f1ef; }
+    .reader-body { padding: 24px 28px 34px; }
+    .reader-body h1 { margin-top: 10px; font-family: "Playfair Display", serif; font-size: clamp(24px, 4vw, 34px); line-height: 1.25; }
+    .reader-watch { margin-top: 14px; border: 0; border-radius: 30px; padding: 10px 18px; background: #ed2024; color: #fff; font-weight: 700; }
+    .reader-content { margin-top: 18px; font-size: 16px; line-height: 1.85; color: #173337; overflow-wrap: anywhere; }
+    .reader-content p { margin-bottom: 14px; }
+    .reader-content h2, .reader-content h3 { margin: 20px 0 10px; font-family: "Playfair Display", serif; }
+    .reader-content ul, .reader-content ol { margin: 0 0 14px 22px; }
+    .reader-content img { max-width: 100%; height: auto; border-radius: 8px; margin: 14px 0; }
+    .reader-content a { color: var(--teal-dark); text-decoration: underline; }
+    .reader-status { margin-top: 14px; padding: 9px 12px; border-radius: 6px; background: #eef8f7; color: var(--teal-dark); font-size: 13px; }
+    .reader-status:empty { display: none; }
+    .reader-status.error { background: #fff1f1; color: #b42318; }
+    @media (max-width: 700px) { .reader-body { padding: 18px 16px 26px; } }
+
     @media (max-width: 1050px) {
       .layout { grid-template-columns: 1fr; }
       .article-list { display: grid; grid-template-columns: repeat(2, 1fr); }
@@ -185,6 +214,14 @@
         <button class="video-close" onclick="closeVideo()" aria-label="Close">✕</button>
       </div>
       <div class="video-frame" id="videoFrame"></div>
+    </div>
+  </div>
+
+  <!-- Article reader modal -->
+  <div class="reader-modal" id="readerModal" onclick="if(event.target===this) closeReader()">
+    <div class="reader-box">
+      <button class="reader-close" onclick="closeReader()" aria-label="Close">✕</button>
+      <div id="readerBody"></div>
     </div>
   </div>
 
@@ -395,7 +432,10 @@
       }
     }
 
+    const readerCache = {};
+
     function renderArticles(items) {
+      items.forEach(item => { readerCache[item._id] = item; });
       document.getElementById("articleList").innerHTML = items.length ? items.slice(0, 8).map((article, index) => `
         <article class="article-card" onclick="openArticle('${article._id}')">
           <img src="${imageFor(article, index)}" alt="${esc(article.title)}" loading="lazy">
@@ -435,7 +475,8 @@
         excerpt: video.description,
         thumbnail: video.thumbnail,
         category: type === "health_update" ? "Health News Video" : "Healthcare News",
-        createdAt: video.publishedAt
+        createdAt: video.publishedAt,
+        isVideo: true
       })));
     }
 
@@ -492,22 +533,123 @@
       document.body.style.overflow = "";
     }
 
-    document.addEventListener("keydown", e => { if (e.key === "Escape") closeVideo(); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") { closeVideo(); closeReader(); } });
+
+    // Strip scripts and inline handlers from article HTML before showing it
+    function cleanHtml(html) {
+      const doc = new DOMParser().parseFromString(html, "text/html");
+      doc.querySelectorAll("script, style, iframe, object, embed").forEach(node => node.remove());
+      doc.body.querySelectorAll("*").forEach(el => {
+        [...el.attributes].forEach(attr => {
+          const bad = /^on/i.test(attr.name) || (/^(href|src)$/i.test(attr.name) && /^\s*javascript:/i.test(attr.value));
+          if (bad) el.removeAttribute(attr.name);
+        });
+      });
+      return doc.body.innerHTML;
+    }
+
+    function formatBody(text) {
+      text = String(text || "");
+      if (/<[a-z][\s\S]*>/i.test(text)) return cleanHtml(text);
+      return text.split(/\n{2,}/).filter(Boolean).map(p => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`).join("");
+    }
+
+    function showReader(item, status = "") {
+      const body = formatBody(item.content || item.excerpt || item.description || "");
+      document.getElementById("readerBody").innerHTML = `
+        <img class="reader-cover" src="${esc(imageFor(item))}" alt="${esc(item.title)}">
+        <div class="reader-body">
+          <span class="category">${esc(item.category || "General")}</span>
+          <h1>${esc(item.title)}</h1>
+          <div class="meta">${formatDate(item.createdAt)}</div>
+          ${item.isVideo ? `<button class="reader-watch" onclick="watchFromReader('${esc(item._id)}')">▶ Watch video</button>` : ""}
+          <div class="reader-status" id="readerStatus">${esc(status)}</div>
+          <div class="reader-content">${body || "<p>No content available.</p>"}</div>
+        </div>`;
+      const modal = document.getElementById("readerModal");
+      modal.classList.add("open");
+      modal.scrollTop = 0;
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeReader() {
+      readerId = null;
+      document.getElementById("readerModal").classList.remove("open");
+      document.getElementById("readerBody").innerHTML = "";
+      if (!document.getElementById("videoModal").classList.contains("open")) document.body.style.overflow = "";
+    }
+
+    function watchFromReader(id) {
+      closeReader();
+      openVideo(id);
+    }
+
+    // The API may wrap the item ({article: {...}}, {data: {...}}) - unwrap it
+    function unwrap(data) {
+      if (Array.isArray(data)) data = data[0];
+      if (!data || typeof data !== "object") return {};
+      const inner = data.article || data.video || data.item || data.result || data.data;
+      return Array.isArray(inner) ? (inner[0] || {}) : (inner && typeof inner === "object" ? inner : data);
+    }
+
+    // Use whichever text field holds the most content
+    function pickContent(obj) {
+      const keys = ["content", "body", "articleContent", "fullText", "text", "html", "details", "story", "description", "excerpt"];
+      let best = "";
+      keys.forEach(key => {
+        const value = obj && obj[key];
+        if (typeof value === "string" && value.length > best.length) best = value;
+      });
+      return best;
+    }
+
+    async function fetchFull(id, isVideo) {
+      const urls = isVideo
+        ? [API + "/videos/" + id, API + "/videos/id/" + id]
+        : [API + "/articles/id/" + id, API + "/articles/" + id];
+      let lastError;
+      for (const url of urls) {
+        try {
+          const obj = unwrap(await getJson(url));
+          const content = pickContent(obj);
+          if (content) return { ...obj, content };
+        } catch (error) {
+          lastError = error;
+        }
+      }
+      throw lastError || new Error("The server returned no article text");
+    }
+
+    let readerId = null;
 
     async function openArticle(id) {
+      readerId = id;
+      const cached = readerCache[id] || { _id: id, title: "Loading..." };
+      const base = { ...cached, _id: id, content: pickContent(cached) };
+      showReader(base, "Loading full content...");
+
       try {
-        const article = await getJson(API + "/articles/id/" + id);
-        const popup = window.open("", "_blank");
-        popup.document.write(`
-          <title>${esc(article.title)}</title>
-          <style>body{font-family:Arial;max-width:850px;margin:40px auto;padding:20px;line-height:1.8;color:#173337}img{max-width:100%}</style>
-          <h1>${esc(article.title)}</h1>
-          <p>${esc(article.excerpt || "")}</p>
-          <div>${article.content || ""}</div>
-        `);
-        popup.document.close();
+        const full = await fetchFull(id, !!cached.isVideo);
+        if (readerId !== id) return; // reader was closed or switched meanwhile
+        const content = full.content.length >= base.content.length ? full.content : base.content;
+        showReader({
+          ...base,
+          ...full,
+          _id: id,
+          isVideo: cached.isVideo,
+          content,
+          category: full.category || base.category,
+          createdAt: full.createdAt || full.publishedAt || base.createdAt,
+          thumbnail: full.thumbnail || full.coverImage || base.thumbnail
+        }, "");
       } catch (error) {
-        alert(error.message);
+        console.error("Could not load full content:", error);
+        if (readerId !== id) return;
+        const status = document.getElementById("readerStatus");
+        if (status) {
+          status.className = "reader-status error";
+          status.textContent = "Couldn't load the full text (" + error.message + "). Showing the summary only.";
+        }
       }
     }
 
