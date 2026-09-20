@@ -1,32 +1,124 @@
-const mongoose = require('mongoose');
 
-const articleSchema = new mongoose.Schema({
-  title:      { type: String, required: true },
-  slug:       { type: String, required: true, unique: true },
-  content:    { type: String, required: true },   // Full HTML/Markdown body
-  excerpt:    { type: String, required: true },   // Short preview (1-2 sentences)
-  coverImage: { type: String },                   // URL
-  author:     { type: String, default: 'WellnessHub Team' },
-  category:   {
-    type: String,
-    enum: ['Nutrition', 'Mental Health', 'Fitness', 'Disease Awareness',
-           'Preventive Care', 'Women Health', 'Heart Health', 'General'],
-    default: 'General',
+const mongoose = require("mongoose");
+
+const articleSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 200,
+    },
+
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      lowercase: true,
+    },
+
+    content: {
+      type: String,
+      required: true,
+    },
+
+    excerpt: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 500,
+    },
+
+    coverImage: {
+      type: String,
+      trim: true,
+    },
+
+    author: {
+      type: String,
+      default: "HealthInk Team",
+      trim: true,
+    },
+
+   category: {
+  type: String,
+  enum: [
+    "Health News",
+    "Nutrition",
+    "Mental Health",
+    "Fitness",
+    "Disease Awareness",
+    "Preventive Care",
+    "Women Health",
+    "Heart Health",
+    "General",
+  ],
+  default: "General",
+},
+
+    tags: {
+      type: [String],
+      default: [],
+    },
+
+    published: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+
+    featured: {
+      type: Boolean,
+      default: false,
+    },
+
+    views: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    readTime: {
+      type: Number,
+      default: 3,
+      min: 1,
+    },
+
+    metaTitle: {
+      type: String,
+      trim: true,
+      maxlength: 60,
+    },
+
+    metaDescription: {
+      type: String,
+      trim: true,
+      maxlength: 160,
+    },
   },
-  tags:       [String],
-  published:  { type: Boolean, default: false },  // Draft until admin publishes
-  featured:   { type: Boolean, default: false },
-  views:      { type: Number, default: 0 },
-  readTime:   { type: Number, default: 3 },       // Minutes
+  {
+    timestamps: true,
+  }
+);
 
-  // SEO
-  metaTitle:       String,
-  metaDescription: String,
+// Text search
+articleSchema.index({
+  title: "text",
+  content: "text",
+  tags: "text",
+});
 
-}, { timestamps: true });
+// Listing and filtering
+articleSchema.index({
+  published: 1,
+  featured: -1,
+  createdAt: -1,
+});
 
-articleSchema.index({ title: 'text', content: 'text', tags: 'text' });
-articleSchema.index({ slug: 1 });
-articleSchema.index({ published: 1, featured: -1, createdAt: -1 });
+// Updated articles
+articleSchema.index({
+  updatedAt: -1,
+});
 
-module.exports = mongoose.model('Article', articleSchema);
+module.exports = mongoose.model("Article", articleSchema);

@@ -1,430 +1,517 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Healthink — Health Awareness Platform</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-<style>
-*{box-sizing:border-box;margin:0;padding:0;}
-:root{
-  --bg:#1e1a17;--surface:#2b2622;--card:#332e29;--raised:#3d3630;
-  --border:rgba(43,168,164,.12);--border2:rgba(43,168,164,.28);
-  --teal:#2ba8a4;--teal2:#5bc4c0;--gold:#c9a961;--gold2:#ddc789;
-  --text:#f0ede6;--muted:rgba(240,237,230,.55);--subtle:rgba(240,237,230,.28);--r:12px;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Healthink | Health Awareness for a Better Tomorrow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --teal: #0bb7b0;
+      --teal-dark: #087d7b;
+      --deep: #062e31;
+      --deep-2: #092125;
+      --text: #12282c;
+      --muted: #718488;
+      --line: #dce8e7;
+      --soft: #f2f9f8;
+      --white: #ffffff;
+      --shadow: 0 8px 28px rgba(5, 53, 55, .08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "DM Sans", sans-serif; background: var(--soft); color: var(--text); }
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+    button, a { cursor: pointer; }
+    .container { width: min(1440px, 94%); margin: auto; }
+
+    .ad {
+      margin-top: 12px;
+      min-height: 92px;
+      padding: 16px 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      overflow: hidden;
+      background: linear-gradient(100deg, #dcefe8, #fff 48%, #073c6a);
+    }
+    .ad h2 { color: #123d68; font-size: clamp(22px, 3vw, 38px); line-height: 1.02; }
+    .ad p { margin-top: 6px; font-size: 13px; color: #294e57; }
+    .ad-side { color: white; font-size: 14px; }
+    .ad-side strong { display: block; font-size: 24px; }
+    .ad-side button { margin-top: 7px; border: 0; border-radius: 30px; padding: 8px 14px; font-size: 12px; font-weight: 700; }
+
+    .header { margin-top: 12px; background: white; border-bottom: 1px solid var(--line); }
+    .header-inner { min-height: 94px; display: flex; align-items: center; gap: 22px; }
+   .logo {
+  width: 180px;
+  height: 70px;
+  object-fit: contain;
+  object-position: left center;
+  display: block;
 }
-html{scroll-behavior:smooth;}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
-nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:0 1.5rem;background:rgba(30,26,23,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
-.nav-in{max-width:1300px;margin:0 auto;display:flex;align-items:center;height:60px;gap:1.5rem;}
-.logo{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:600;color:var(--text);letter-spacing:-.5px;margin-right:auto;text-decoration:none;cursor:pointer;}
-.logo .th{background:var(--teal);color:#1a1714;padding:0 4px;border-radius:4px;font-style:italic;}
-.nav-search{display:flex;background:rgba(43,168,164,.06);border:1.5px solid rgba(43,168,164,.15);border-radius:50px;overflow:hidden;transition:border-color .2s;width:300px;}
-.nav-search:focus-within{border-color:var(--teal);}
-.nav-search input{flex:1;background:transparent;border:none;outline:none;padding:.5rem 1rem;font-size:.875rem;font-family:'DM Sans',sans-serif;color:var(--text);}
-.nav-search input::placeholder{color:var(--subtle);}
-.nav-search button{background:var(--teal);color:#1a1714;border:none;padding:.5rem 1rem;font-size:.8rem;font-weight:500;cursor:pointer;border-radius:50px;margin:4px;font-family:'DM Sans',sans-serif;}
-.nav-links{display:flex;gap:.25rem;}
-.nav-link{background:none;border:none;color:var(--muted);font-size:.85rem;cursor:pointer;padding:.4rem .8rem;border-radius:50px;transition:all .2s;font-family:'DM Sans',sans-serif;}
-.nav-link:hover,.nav-link.active{background:rgba(43,168,164,.1);color:var(--teal);}
-.app-layout{max-width:1300px;margin:0 auto;padding:76px 1.5rem 2rem;display:grid;grid-template-columns:210px 1fr;gap:1.5rem;min-height:100vh;}
-.sidebar{position:sticky;top:76px;height:calc(100vh - 96px);overflow-y:auto;display:flex;flex-direction:column;gap:1rem;}
-.sidebar::-webkit-scrollbar{width:3px;}
-.sidebar::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
-.sidebar-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
-.sidebar-title{padding:.75rem 1rem;font-size:.68rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);border-bottom:1px solid var(--border);}
-.cat-list{padding:.4rem;}
-.cat-item{display:flex;align-items:center;justify-content:space-between;padding:.5rem .7rem;border-radius:8px;cursor:pointer;color:var(--muted);font-size:.82rem;transition:all .2s;margin-bottom:1px;}
-.cat-item:hover{background:rgba(43,168,164,.08);color:var(--text);}
-.cat-item.active{background:rgba(43,168,164,.14);color:var(--teal);}
-.cnt{font-size:.7rem;background:rgba(43,168,164,.1);color:var(--teal2);padding:.12rem .45rem;border-radius:50px;}
-.main-content{min-width:0;}
-.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
-.sec-hd h2{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:300;}
-.sec-hd h2 em{color:var(--teal);font-style:italic;}
-.sec-badge{background:rgba(43,168,164,.1);border:1px solid rgba(43,168,164,.2);color:var(--teal2);font-size:.75rem;padding:.2rem .65rem;border-radius:50px;margin-left:.75rem;}
-.vgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem;}
-.vcard{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .25s;}
-.vcard:hover{border-color:rgba(43,168,164,.35);transform:translateY(-3px);box-shadow:0 8px 30px rgba(43,168,164,.1);}
-.vcard-thumb{position:relative;aspect-ratio:16/9;overflow:hidden;background:var(--raised);}
-.vcard-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
-.vcard:hover .vcard-thumb img{transform:scale(1.04);}
-.vcard-overlay{position:absolute;inset:0;background:rgba(0,0,0,0);transition:background .25s;display:flex;align-items:center;justify-content:center;}
-.vcard:hover .vcard-overlay{background:rgba(0,0,0,.35);}
-.play-btn{width:48px;height:48px;background:rgba(43,168,164,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.8);transition:all .25s;}
-.vcard:hover .play-btn{opacity:1;transform:scale(1);}
-.play-btn svg{fill:white;width:18px;height:18px;margin-left:3px;}
-.vcard-feat{position:absolute;top:.6rem;left:.6rem;background:var(--gold);color:#1a1714;font-size:.65rem;font-weight:600;padding:.2rem .55rem;border-radius:50px;}
-.vcard-body{padding:.9rem;}
-.vcard-title{font-size:.875rem;font-weight:400;line-height:1.4;margin-bottom:.5rem;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.vcard-meta{font-size:.73rem;color:var(--subtle);display:flex;justify-content:space-between;margin-bottom:.5rem;}
-.ai-tag{display:inline-flex;align-items:center;gap:.3rem;background:rgba(43,168,164,.08);border:1px solid rgba(43,168,164,.18);color:var(--teal2);font-size:.7rem;padding:.2rem .55rem;border-radius:50px;}
-.agrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
-.acard{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .25s;display:flex;flex-direction:column;}
-.acard:hover{border-color:rgba(43,168,164,.3);transform:translateY(-2px);}
-.acard-img{aspect-ratio:16/9;overflow:hidden;background:var(--raised);display:flex;align-items:center;justify-content:center;font-size:2rem;}
-.acard-img img{width:100%;height:100%;object-fit:cover;}
-.acard-body{padding:1rem;flex:1;display:flex;flex-direction:column;}
-.acat{font-size:.68rem;font-weight:500;letter-spacing:.08em;color:var(--teal);text-transform:uppercase;margin-bottom:.4rem;}
-.acard-title{font-family:'Fraunces',serif;font-size:1rem;font-weight:300;line-height:1.4;margin-bottom:.5rem;color:var(--text);}
-.acard-excerpt{font-size:.8rem;color:var(--muted);line-height:1.55;flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.acard-foot{display:flex;align-items:center;justify-content:space-between;margin-top:.75rem;padding-top:.6rem;border-top:1px solid var(--border);font-size:.73rem;color:var(--subtle);}
-/* VIDEO PAGE */
-#videoPage{display:none;position:fixed;inset:0;background:var(--bg);z-index:300;overflow-y:auto;overflow-x:hidden;padding-top:60px;}
-#videoPage.active{display:block;}
-.vp-inner{max-width:1100px;margin:0 auto;padding:1.5rem;}
-.vp-back{display:inline-flex;align-items:center;gap:.5rem;background:rgba(43,168,164,.1);border:1px solid rgba(43,168,164,.2);color:var(--teal);padding:.45rem 1rem;border-radius:50px;cursor:pointer;font-size:.85rem;margin-bottom:1.25rem;font-family:'DM Sans',sans-serif;border:none;}
-.vp-back:hover{background:rgba(43,168,164,.18);}
-.vp-layout{display:grid;grid-template-columns:1fr 350px;gap:1.5rem;align-items:start;}
-.vp-player{background:#000;border-radius:var(--r);overflow:hidden;aspect-ratio:16/9;}
-.vp-player iframe{width:100%;height:100%;border:none;display:block;}
-.vp-title{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:300;line-height:1.3;margin:1rem 0 .4rem;}
-.vp-meta{font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;}
-.vp-meta a{color:var(--teal);text-decoration:none;}
-.vp-desc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1rem;font-size:.875rem;color:var(--muted);line-height:1.7;max-height:120px;overflow:hidden;position:relative;}
-.vp-desc.expanded{max-height:2000px;}
-.vp-desc-fade{position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(transparent,var(--surface));}
-.vp-desc.expanded .vp-desc-fade{display:none;}
-.vp-desc-btn{color:var(--teal);font-size:.8rem;margin-top:.5rem;cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;padding:0;}
-.vp-summary{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;position:relative;top:0;}
-.vp-sum-hd{font-size:.7rem;font-weight:500;letter-spacing:.1em;color:var(--teal);text-transform:uppercase;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border);}
-.sum-pts{list-style:none;}
-.sum-pts li{display:flex;gap:.65rem;padding:.6rem 0;border-bottom:1px solid rgba(43,168,164,.06);font-size:.875rem;color:var(--muted);line-height:1.55;}
-.sum-pts li:last-child{border-bottom:none;}
-.bullet{min-width:22px;height:22px;background:rgba(43,168,164,.12);border:1px solid rgba(43,168,164,.25);color:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:600;flex-shrink:0;margin-top:1px;}
-.vp-related{margin-top:1.25rem;}
-.vp-rel-hd{font-size:.7rem;font-weight:500;letter-spacing:.1em;color:var(--subtle);text-transform:uppercase;margin-bottom:.75rem;}
-.rel-card{display:flex;gap:.75rem;cursor:pointer;padding:.6rem;border-radius:8px;transition:background .2s;margin-bottom:.4rem;}
-.rel-card:hover{background:rgba(43,168,164,.06);}
-.rel-thumb{width:88px;height:52px;border-radius:6px;object-fit:cover;background:var(--raised);flex-shrink:0;}
-.rel-title{font-size:.8rem;line-height:1.35;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.rel-date{font-size:.7rem;color:var(--subtle);margin-top:.2rem;}
-/* ARTICLE MODAL */
-.amodal-bg{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;display:flex;align-items:center;justify-content:center;padding:1.5rem;backdrop-filter:blur(8px);}
-.amodal-bg.hidden{display:none;}
-.amodal{background:#211d1a;border:1px solid var(--border2);border-radius:18px;max-width:680px;width:100%;max-height:90vh;overflow-y:auto;}
-.amodal-top{position:sticky;top:0;background:#211d1a;padding:.75rem 1.25rem;display:flex;justify-content:flex-end;border-bottom:1px solid var(--border);}
-.amodal-close{background:rgba(43,168,164,.1);border:1px solid rgba(43,168,164,.2);color:var(--teal);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;}
-.amodal-body{padding:1.5rem;}
-.art-img{width:100%;aspect-ratio:21/9;object-fit:cover;border-radius:10px;margin-bottom:1.25rem;}
-.art-cat{font-size:.7rem;font-weight:500;letter-spacing:.1em;color:var(--teal);text-transform:uppercase;margin-bottom:.4rem;}
-.art-title{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:300;line-height:1.25;margin-bottom:.65rem;}
-.art-meta{font-size:.8rem;color:var(--muted);margin-bottom:1.25rem;display:flex;gap:1.25rem;flex-wrap:wrap;}
-.art-body{color:var(--muted);font-size:.925rem;line-height:1.8;}
-.art-body h2,.art-body h3{font-family:'Fraunces',serif;font-weight:300;color:var(--text);margin:1.5rem 0 .65rem;}
-.art-body p{margin-bottom:1rem;}
-.art-body ul,.art-body ol{margin:0 0 1rem 1.5rem;}
-.art-body strong{color:var(--text);}
-.ldots{display:flex;gap:.5rem;justify-content:center;padding:2.5rem;}
-.ldot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:ldot 1.2s ease-in-out infinite;}
-.ldot:nth-child(2){animation-delay:.2s;} .ldot:nth-child(3){animation-delay:.4s;}
-@keyframes ldot{0%,80%,100%{transform:scale(.5);opacity:.3;}40%{transform:scale(1);opacity:1;}}
-.empty-s{text-align:center;padding:3rem;color:var(--subtle);font-size:.9rem;}
-footer{background:var(--surface);border-top:1px solid var(--border);padding:2rem 1.5rem;text-align:center;margin-top:2rem;}
-.footer-logo{font-family:'Fraunces',serif;font-size:1.3rem;color:var(--text);margin-bottom:.4rem;}
-.footer-logo .th{background:var(--teal);color:#1a1714;padding:0 3px;border-radius:3px;font-style:italic;}
-footer p{color:var(--subtle);font-size:.8rem;margin-top:.3rem;}
-@media(max-width:900px){
-  .app-layout{grid-template-columns:1fr;}
-  .sidebar{position:static;height:auto;}
-  .cat-list{display:flex;flex-wrap:wrap;gap:.35rem;padding:.5rem;}
-  .vgrid,.agrid{grid-template-columns:repeat(2,1fr);}
-  .vp-layout{grid-template-columns:1fr;}
-  .vp-summary{position:static;}
+    .brand-note { border-left: 1px solid var(--line); padding-left: 18px; color: #456166; font-size: 13px; line-height: 1.5; }
+    .search { margin-left: auto; width: min(350px, 30vw); display: flex; border: 1px solid #c9dada; border-radius: 8px; overflow: hidden; }
+    .search input { width: 100%; min-width: 0; padding: 11px 13px; border: 0; outline: 0; }
+    .search button { padding: 0 15px; border: 0; background: var(--teal); color: white; }
+    .socials { display: flex; gap: 8px; }
+    .social { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 6px; background: #101b20; color: white; font-weight: 700; }
+    .fb { background: #1877f2; }
+    .yt { background: #ed2024; }
+    .ig { background: linear-gradient(135deg, #f9ce34, #ee2a7b, #6228d7); }
+
+    .tabs { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--deep); border-bottom: 4px solid #d8eeeb; }
+    .tab { padding: 17px 8px; border: 0; border-right: 1px solid rgba(255,255,255,.18); background: transparent; color: white; font-weight: 700; }
+    .tab.active, .tab:hover { background: var(--teal); }
+
+    main { padding: 18px 0 0; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(330px, 1fr); gap: 16px; }
+    .panel { background: white; border: 1px solid var(--line); border-radius: 8px; padding: 16px; box-shadow: var(--shadow); }
+    .panel-head, .section-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .heading { font-family: "Playfair Display", serif; font-size: 25px; }
+    .heading span { color: var(--teal-dark); }
+    .view-all { color: var(--teal-dark); font-size: 13px; font-weight: 700; white-space: nowrap; }
+
+    .feature { overflow: hidden; border-radius: 7px; background: #092629; cursor: pointer; }
+    .feature img { display: block; width: 100%; aspect-ratio: 16 / 8.5; object-fit: cover; }
+    .feature-info { padding: 10px 0 0; }
+    .feature-title { font-size: 19px; font-weight: 700; line-height: 1.35; }
+    .meta { color: var(--muted); font-size: 12px; margin-top: 5px; }
+
+    .video-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; margin-top: 17px; }
+    .video-card { min-width: 0; cursor: pointer; }
+    .thumb { position: relative; overflow: hidden; border-radius: 5px; background: #dcebea; }
+    .thumb img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; transition: transform .25s; }
+    .video-card:hover img { transform: scale(1.04); }
+    .video-card h3 { margin-top: 7px; font-size: 14px; line-height: 1.35; }
+
+    .side-tabs { display: flex; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; margin-bottom: 15px; }
+    .side-tab { flex: 1; padding: 10px 3px; border: 0; background: #f6faf9; font-size: 12px; }
+    .side-tab.active { background: #d8f5f0; color: var(--teal-dark); font-weight: 700; }
+    .article-list { display: flex; flex-direction: column; gap: 12px; }
+    .article-card { display: grid; grid-template-columns: 108px 1fr; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--line); cursor: pointer; }
+    .article-card:last-child { border-bottom: 0; }
+    .article-card img { width: 108px; height: 82px; border-radius: 5px; object-fit: cover; background: #e5f1ef; }
+    .category { display: inline-block; padding: 3px 7px; border-radius: 4px; background: #d8f5f0; color: var(--teal-dark); font-size: 10px; font-weight: 700; }
+    .article-card h3 { margin-top: 4px; font-size: 14px; line-height: 1.35; }
+    .article-card p { margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.4; }
+
+    .section { margin-top: 21px; }
+    .section-head h2 { font-size: 25px; }
+    .section-head h2::before { content: "▶"; margin-right: 10px; color: #ed2024; font-size: 17px; }
+    .horizontal { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; }
+    .short-card { flex: 0 0 160px; position: relative; overflow: hidden; border-radius: 7px; background: var(--deep); cursor: pointer; }
+    .short-card img { display: block; width: 100%; height: 205px; object-fit: cover; }
+    .short-card::after { content: ""; position: absolute; inset: 35% 0 0; background: linear-gradient(transparent, rgba(0,0,0,.9)); }
+    .short-info { position: absolute; z-index: 1; left: 10px; right: 8px; bottom: 10px; color: white; font-size: 13px; font-weight: 700; line-height: 1.3; }
+    .short-info small { display: block; margin-top: 7px; font-size: 10px; font-weight: 400; }
+
+    .infographics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; }
+    .info-card { padding: 16px; border: 1px solid var(--line); border-radius: 8px; background: white; }
+    .info-card img { width: 100%; height: 150px; object-fit: cover; border-radius: 6px; }
+    .info-card h3 { margin-top: 9px; font-size: 15px; }
+    .info-card p { margin-top: 5px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+
+    .empty { padding: 28px 10px; text-align: center; color: var(--muted); font-size: 13px; }
+
+    footer { margin-top: 25px; background: var(--deep); color: white; }
+    .footer-main { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 28px; padding: 42px 0; }
+   .footer-logo {
+  width: 150px;
+  height: 60px;
+  object-fit: contain;
+  object-position: left center;
 }
-@media(max-width:560px){.vgrid,.agrid{grid-template-columns:1fr;}.nav-search{display:none;}}
-</style>
+    footer h3 { margin-bottom: 10px; font-size: 15px; }
+    footer p, footer a { color: #b5d0d0; font-size: 13px; line-height: 1.8; }
+    .footer-socials { display: flex; gap: 8px; margin-top: 12px; }
+    .footer-bottom { display: flex; justify-content: space-between; gap: 20px; padding: 17px 0; border-top: 1px solid rgba(255,255,255,.16); color: #b5d0d0; font-size: 12px; }
+
+    /* ---------- In-page video player modal ---------- */
+    .video-modal {
+      position: fixed; inset: 0; z-index: 1000;
+      display: none; align-items: center; justify-content: center;
+      padding: 20px; background: rgba(3, 20, 22, .88);
+    }
+    .video-modal.open { display: flex; }
+    .video-modal-box { width: min(960px, 100%); }
+    .video-frame {
+      position: relative; width: 100%; aspect-ratio: 16 / 9;
+      background: #000; border-radius: 10px; overflow: hidden;
+    }
+    .video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .video-modal-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 12px; margin-bottom: 10px; color: #fff;
+    }
+    .video-modal-title { font-weight: 700; font-size: 16px; line-height: 1.3; }
+    .video-close {
+      flex: none; width: 36px; height: 36px; border: 0; border-radius: 50%;
+      background: rgba(255,255,255,.15); color: #fff; font-size: 20px;
+    }
+    .video-close:hover { background: var(--teal); }
+
+    @media (max-width: 1050px) {
+      .layout { grid-template-columns: 1fr; }
+      .article-list { display: grid; grid-template-columns: repeat(2, 1fr); }
+      .footer-main { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 700px) {
+      .ad { padding: 13px 16px; }
+      .header-inner { flex-wrap: wrap; padding: 10px 0; }
+      .logo { width: 190px; height: 60px; }
+      .brand-note { display: none; }
+      .search { order: 3; width: 100%; margin: 0; }
+      .socials { margin-left: auto; }
+      .tab { font-size: 11px; padding: 13px 3px; }
+      .video-grid { grid-template-columns: repeat(2, 1fr); }
+      .article-list { grid-template-columns: 1fr; }
+      .infographics, .footer-main { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; }
+    }
+  </style>
 </head>
 <body>
-
-<nav>
-  <div class="nav-in">
-    <div class="logo" onclick="showHome()">heal<span class="th">th</span>ink</div>
-    <div class="nav-search">
-      <input type="text" id="navSearch" placeholder="Search health videos…" onkeydown="if(event.key==='Enter')doSearch()"/>
-      <button onclick="doSearch()">Search</button>
-    </div>
-    <div class="nav-links">
-      <button class="nav-link active" id="navVideos" onclick="switchTab('videos')">Videos</button>
-      <button class="nav-link" id="navArticles" onclick="switchTab('articles')">Articles</button>
+  <!-- Video player modal -->
+  <div class="video-modal" id="videoModal" onclick="if(event.target===this) closeVideo()">
+    <div class="video-modal-box">
+      <div class="video-modal-bar">
+        <div class="video-modal-title" id="videoModalTitle"></div>
+        <button class="video-close" onclick="closeVideo()" aria-label="Close">✕</button>
+      </div>
+      <div class="video-frame" id="videoFrame"></div>
     </div>
   </div>
-</nav>
 
-<div id="homePage">
-  <div class="app-layout">
-    <aside class="sidebar">
-      <div class="sidebar-section">
-        <div class="sidebar-title">📂 Categories</div>
-        <div class="cat-list" id="catList">
-          <div class="cat-item active" onclick="filterCat('')">All <span class="cnt" id="cntAll">—</span></div>
-        </div>
+  <div class="container">
+    <section class="ad">
+      <div>
+        <h2>Better Health<br>Brighter Tomorrow</h2>
+        <p>Simple steps. Healthier lives.</p>
       </div>
-      <div class="sidebar-section">
-        <div class="sidebar-title">🔥 Trending</div>
-        <div class="cat-list" id="trendingList"><div style="padding:.75rem;font-size:.8rem;color:var(--subtle);">Loading…</div></div>
-      </div>
-    </aside>
+      <div class="ad-side">Stay Informed<br>Stay Healthy<strong>Healthink</strong><button>Explore Now</button></div>
+    </section>
+  </div>
 
-    <div class="main-content">
-      <div id="tabVideos">
-        <div class="sec-hd">
-          <h2 id="vSecTitle">Latest <em>Videos</em> <span class="sec-badge" id="vBadge" style="display:none;"></span></h2>
-        </div>
-        <div id="vLoading" class="ldots"><div class="ldot"></div><div class="ldot"></div><div class="ldot"></div></div>
-        <div class="vgrid" id="vgrid" style="display:none;"></div>
-        <div id="vEmpty" class="empty-s" style="display:none;">No videos found.</div>
+  <header class="header">
+    <div class="container header-inner">
+      <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false">
+        <img class="logo" src="healthink-logo.jpeg" alt="Healthink logo">
+      </a>
+      <div class="brand-note">Health Awareness<br>for a Better Tomorrow</div>
+      <div class="search">
+        <input id="searchInput" placeholder="Search videos, articles, health topics..." onkeydown="if(event.key==='Enter') searchAll()">
+        <button onclick="searchAll()">⌕</button>
       </div>
-
-      <div id="tabArticles" style="display:none;">
-        <div class="sec-hd">
-          <h2>Health <em>Articles</em> <span class="sec-badge" id="aBadge" style="display:none;"></span></h2>
-        </div>
-        <div id="aLoading" class="ldots"><div class="ldot"></div><div class="ldot"></div><div class="ldot"></div></div>
-        <div class="agrid" id="agrid" style="display:none;"></div>
-        <div id="aEmpty" class="empty-s" style="display:none;">No articles published yet.</div>
+      <div class="socials">
+        <a class="social fb" href="https://www.facebook.com/Healthinkworld" target="_blank" rel="noopener">f</a>
+        <a class="social" href="https://x.com/healthink4" target="_blank" rel="noopener">𝕏</a>
+        <a class="social yt" href="https://www.youtube.com/@healthink" target="_blank" rel="noopener">▶</a>
+        <a class="social ig" href="#" aria-label="Instagram">◎</a>
       </div>
     </div>
-  </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-type="main" onclick="selectMainTab('main',this)">▣ Video Health Story</button>
+    <button class="tab" data-type="articles" onclick="selectMainTab('articles',this)">▤ Health Articles</button>
+    <button class="tab" data-type="health_update" onclick="selectMainTab('health_update',this)">▥ Health News Update</button>
+    <button class="tab" data-type="healthcare" onclick="selectMainTab('healthcare',this)">♡ Healthcare News</button>
+  </nav>
+
+  <main class="container">
+    <div class="layout">
+      <section class="panel">
+        <div class="panel-head">
+          <h2 class="heading" id="videoHeading">Latest <span>Video Health Stories</span></h2>
+          <a class="view-all" href="#" onclick="loadVideos();return false">View All →</a>
+        </div>
+        <div id="featuredVideo"></div>
+        <div class="video-grid" id="videoGrid"><div class="empty">Loading videos...</div></div>
+      </section>
+
+      <section class="panel">
+        <div class="side-tabs">
+          <button class="side-tab active" onclick="loadSideArticles('articles',this)">Articles</button>
+          <button class="side-tab" onclick="loadSideArticles('health_update',this)">Health News</button>
+          <button class="side-tab" onclick="loadSideArticles('healthcare',this)">Healthcare</button>
+        </div>
+        <div class="panel-head">
+          <h2 class="heading" id="sideHeading">Latest <span>Health Articles</span></h2>
+          <a class="view-all" href="#" onclick="loadSideArticles('articles');return false">View All →</a>
+        </div>
+        <div class="article-list" id="articleList"><div class="empty">Loading articles...</div></div>
+      </section>
+    </div>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>YouTube Shorts</h2>
+        <a class="view-all" href="#" onclick="loadShorts();return false">View All →</a>
+      </div>
+      <div class="horizontal" id="shortsRow"><div class="empty">Loading shorts...</div></div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2 style="font-size:25px">Health Infographics</h2>
+        <span class="view-all">Visual learning</span>
+      </div>
+      <div class="infographics" id="infographicGrid">
+        <div class="info-card"><img src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=900" alt="Healthy food"><h3>Nutrition Awareness</h3><p>Simple visual information about balanced meals and healthy habits.</p></div>
+        <div class="info-card"><img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=900" alt="Mental wellbeing"><h3>Mental Wellbeing</h3><p>Understand the value of rest, movement, support and self-care.</p></div>
+        <div class="info-card"><img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=900" alt="Fitness"><h3>Fitness & Prevention</h3><p>Learn practical ways to make movement part of daily life.</p></div>
+      </div>
+    </section>
+  </main>
+
   <footer>
-    <div class="footer-logo">heal<span class="th">th</span>ink</div>
-    <p>Health Awareness Platform · Hindi Health Videos · AI-Powered Summaries</p>
-    <p><a href="https://www.youtube.com/@healthink" target="_blank" style="color:var(--teal);text-decoration:none;">YouTube @healthink</a></p>
-  </footer>
-</div>
-
-<!-- VIDEO SINGLE PAGE -->
-<div id="videoPage">
-  <div class="vp-inner">
-    <button class="vp-back" onclick="showHome()">← Back to Videos</button>
-    <div class="vp-layout">
+    <div class="container footer-main">
       <div>
-        <div class="vp-player">
-          <iframe id="vpIframe" src="" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
-        </div>
-        <h1 class="vp-title" id="vpTitle"></h1>
-        <div class="vp-meta" id="vpMeta"></div>
-        <div class="vp-desc" id="vpDesc">
-          <span id="vpDescText"></span>
-          <div class="vp-desc-fade"></div>
-        </div>
-        <button class="vp-desc-btn" onclick="toggleDesc()">Show more ▾</button>
-      </div>
-      <div>
-        <div class="vp-summary">
-          <div class="vp-sum-hd">✦ AI Key Takeaways</div>
-          <div id="vpSummary"><div class="ldots"><div class="ldot"></div><div class="ldot"></div><div class="ldot"></div></div></div>
-        </div>
-        <div class="vp-related">
-          <div class="vp-rel-hd">Related Videos</div>
-          <div id="vpRelated"></div>
+        <img class="footer-logo" src="healthink-logo.jpeg" alt="Healthink logo">
+        <p style="margin-top:14px">Healthink is a platform dedicated to spreading health awareness through trusted videos, articles and expert insights.</p>
+        <div class="footer-socials">
+          <a class="social fb" href="https://www.facebook.com/Healthinkworld" target="_blank" rel="noopener">f</a>
+          <a class="social" href="https://x.com/healthink4" target="_blank" rel="noopener">𝕏</a>
+          <a class="social yt" href="https://www.youtube.com/@healthink" target="_blank" rel="noopener">▶</a>
         </div>
       </div>
+      <div><h3>Quick Links</h3><a href="#" onclick="selectMainTab('main');return false">Video Health Story</a><a href="#" onclick="selectMainTab('articles');return false">Health Articles</a><a href="#" onclick="selectMainTab('health_update');return false">Health News Update</a><a href="#" onclick="selectMainTab('healthcare');return false">Healthcare News</a></div>
+      <div><h3>Categories</h3><a href="#">Heart Health</a><a href="#">Nutrition</a><a href="#">Mental Health</a><a href="#">Preventive Care</a><a href="#">Women's Health</a><a href="#">Child Health</a></div>
+      <div><h3>Follow Us</h3><a href="https://www.facebook.com/Healthinkworld" target="_blank" rel="noopener">Facebook</a><a href="https://x.com/healthink4" target="_blank" rel="noopener">X / Twitter</a><a href="https://www.youtube.com/@healthink" target="_blank" rel="noopener">YouTube</a><a href="mailto:hello@healthink.in">Contact Us</a></div>
     </div>
-  </div>
-</div>
+    <div class="container footer-bottom"><span>© 2026 Healthink. All rights reserved.</span><span>Stay Healthy | Stay Informed | Stay Connected</span></div>
+  </footer>
 
-<!-- ARTICLE MODAL -->
-<div class="amodal-bg hidden" id="aModal" onclick="if(event.target===this){this.classList.add('hidden');document.body.style.overflow='';}">
-  <div class="amodal">
-    <div class="amodal-top"><button class="amodal-close" onclick="document.getElementById('aModal').classList.add('hidden');document.body.style.overflow=''">✕</button></div>
-    <div class="amodal-body" id="aModalBody"></div>
-  </div>
-</div>
+  <script>
+    const API = "https://wellnesshub-2tq3.onrender.com/api";
+    let videos = [];
+    let articles = [];
+    let activeType = "main";
 
-<script>
-const API = (window.BACKEND_URL || 'https://wellnesshub-2tq3.onrender.com') + '/api';
-let allVideos=[], allArticles=[], currentCat='';
+    const fallbackImages = [
+      "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=900",
+      "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=900",
+      "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=900",
+      "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=900",
+      "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=900"
+    ];
 
-async function init(){
-  await Promise.all([loadVideos(), loadArticles()]);
-}
+    function esc(value) {
+      return String(value || "").replace(/[&<>"']/g, char => ({
+        "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+      }[char]));
+    }
 
-function switchTab(tab){
-  document.getElementById('tabVideos').style.display   = tab==='videos'   ? 'block':'none';
-  document.getElementById('tabArticles').style.display = tab==='articles' ? 'block':'none';
-  document.getElementById('navVideos').classList.toggle('active',tab==='videos');
-  document.getElementById('navArticles').classList.toggle('active',tab==='articles');
-}
+    function imageFor(item, index = 0) {
+      return item?.thumbnail || item?.coverImage || fallbackImages[index % fallbackImages.length];
+    }
 
-async function loadVideos(query='',cat=''){
-  document.getElementById('vLoading').style.display='flex';
-  document.getElementById('vgrid').style.display='none';
-  document.getElementById('vEmpty').style.display='none';
-  try{
-    let url=`${API}/videos?limit=50`;
-    if(query) url+=`&q=${encodeURIComponent(query)}`;
-    if(cat)   url+=`&category=${encodeURIComponent(cat)}`;
-    const data = await fetch(url).then(r=>r.json());
-    allVideos = data.items||data||[];
-    renderVideos(allVideos, query, cat);
-    buildSidebar();
-  }catch(e){
-    document.getElementById('vLoading').style.display='none';
-    document.getElementById('vEmpty').textContent='Error: '+e.message;
-    document.getElementById('vEmpty').style.display='block';
-  }
-}
+    function formatDate(value) {
+      if (!value) return "";
+      return new Date(value).toLocaleDateString("en-IN", {day:"numeric", month:"short", year:"numeric"});
+    }
 
-function renderVideos(videos, query='', cat=''){
-  document.getElementById('vLoading').style.display='none';
-  const titleEl = document.getElementById('vSecTitle');
-  if(titleEl){
-    titleEl.innerHTML = query
-      ? `Results for <em>"${esc(query)}"</em>`
-      : cat ? `<em>${esc(cat)}</em> Videos`
-      : `Latest <em>Videos</em>`;
-  }
-  const badge = document.getElementById('vBadge');
-  if(badge){ badge.textContent=videos.length+' videos'; badge.style.display=videos.length?'inline':'none'; }
-  if(!videos.length){document.getElementById('vEmpty').style.display='block';return;}
-  document.getElementById('vgrid').innerHTML=videos.map(v=>`
-    <div class="vcard" onclick="openVideo('${v._id}')">
-      ${v.featured?'<div class="vcard-feat">Featured</div>':''}
-      <div class="vcard-thumb">
-        <img src="${v.thumbnail||''}" alt="${esc(v.title)}" loading="lazy" onerror="this.style.display='none'"/>
-        <div class="vcard-overlay"><div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
-      </div>
-      <div class="vcard-body">
-        <div class="vcard-title">${esc(v.title)}</div>
-        <div class="vcard-meta"><span>${esc(v.channelTitle||'')}</span><span>${fmtDate(v.publishedAt)}</span></div>
-        <div class="ai-tag">✦ AI Summary</div>
-      </div>
-    </div>`).join('');
-  document.getElementById('vgrid').style.display='grid';
-}
+    async function getJson(url) {
+      const response = await fetch(url);
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Unable to load content");
+      return data;
+    }
 
-function buildSidebar(){
-  const counts={};
-  allVideos.forEach(v=>{const c=v.category||'General';counts[c]=(counts[c]||0)+1;});
-  const cats=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
-  const list=document.getElementById('catList');
-  list.innerHTML=`<div class="cat-item ${!currentCat?'active':''}" onclick="filterCat('')">All <span class="cnt">${allVideos.length}</span></div>`;
-  cats.forEach(([cat,cnt])=>{
-    list.innerHTML+=`<div class="cat-item ${currentCat===cat?'active':''}" onclick="filterCat('${esc(cat)}')">${esc(cat)} <span class="cnt">${cnt}</span></div>`;
-  });
-  const trending=[...allVideos].sort((a,b)=>(b.viewCount||0)-(a.viewCount||0)).slice(0,5);
-  document.getElementById('trendingList').innerHTML=trending.length
-    ? trending.map(v=>`
-        <div class="cat-item" onclick="openVideo('${v._id}')" style="flex-direction:column;align-items:flex-start;gap:.1rem;">
-          <div style="font-size:.8rem;color:var(--text);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${esc(v.title)}</div>
-          <div style="font-size:.7rem;color:var(--subtle);">${(v.viewCount||0).toLocaleString()} views</div>
-        </div>`).join('')
-    : '<div style="padding:.75rem;font-size:.8rem;color:var(--subtle);">No data yet</div>';
-}
+    async function loadVideos(query = "") {
+      try {
+        let url = API + "/videos?limit=50";
+        if (activeType === "health_update") url += "&playlistType=health_update";
+        if (query) url += "&q=" + encodeURIComponent(query);
 
-function filterCat(cat){
-  currentCat=cat;
-  switchTab('videos');
-  loadVideos('',cat);
-}
+        const data = await getJson(url);
+        videos = data.items || data || [];
+        renderVideos(videos);
+        renderShorts(videos);
+      } catch (error) {
+        document.getElementById("featuredVideo").innerHTML = "";
+        document.getElementById("videoGrid").innerHTML = `<div class="empty">${esc(error.message)}</div>`;
+      }
+    }
 
-async function openVideo(id){
-  const video=allVideos.find(v=>v._id===id);
-  if(!video)return;
-  document.getElementById('homePage').style.display='none';
-  document.getElementById('videoPage').classList.add('active');
-  window.scrollTo(0,0);
-  document.getElementById('vpIframe').src=`https://www.youtube.com/embed/${video.youtubeId}?autoplay=1&rel=0`;
-  document.getElementById('vpTitle').textContent=video.title;
-  document.getElementById('vpMeta').innerHTML=
-    `<span>📺 ${esc(video.channelTitle||'Healthink')}</span>`+
-    `<span>📅 ${fmtDate(video.publishedAt)}</span>`+
-    `<span>${(video.viewCount||0).toLocaleString()} views</span>`+
-    `<a href="https://www.youtube.com/watch?v=${video.youtubeId}" target="_blank">Watch on YouTube ↗</a>`;
-  document.getElementById('vpDescText').textContent=video.description||'No description.';
-  document.getElementById('vpDesc').classList.remove('expanded');
-  document.querySelector('.vp-desc-btn').textContent='Show more ▾';
-  const related=allVideos.filter(v=>v._id!==id&&v.category===video.category).slice(0,6);
-  document.getElementById('vpRelated').innerHTML=related.map(v=>`
-    <div class="rel-card" onclick="openVideo('${v._id}')">
-      <img class="rel-thumb" src="${v.thumbnail||''}" alt="" onerror="this.style.display='none'"/>
-      <div class="rel-info">
-        <div class="rel-title">${esc(v.title)}</div>
-        <div class="rel-date">${fmtDate(v.publishedAt)}</div>
-      </div>
-    </div>`).join('');
-  document.getElementById('vpSummary').innerHTML='<div class="ldots"><div class="ldot"></div><div class="ldot"></div><div class="ldot"></div></div>';
-  try{
-    const {points}=await fetch(`${API}/videos/${id}/summary`).then(r=>r.json());
-    document.getElementById('vpSummary').innerHTML=`<ul class="sum-pts">${
-      points.map((p,i)=>`<li><div class="bullet">${i+1}</div><span>${esc(p)}</span></li>`).join('')
-    }</ul>`;
-  }catch{
-    document.getElementById('vpSummary').innerHTML='<p style="color:var(--muted);font-size:.85rem;padding:.5rem;">Summary unavailable.</p>';
-  }
-}
+    function renderVideos(items) {
+      const feature = document.getElementById("featuredVideo");
+      const grid = document.getElementById("videoGrid");
 
-function showHome(){
-  document.getElementById('videoPage').classList.remove('active');
-  document.getElementById('homePage').style.display='block';
-  document.getElementById('vpIframe').src='';
-}
+      if (!items.length) {
+        feature.innerHTML = "";
+        grid.innerHTML = '<div class="empty">No videos available for this section.</div>';
+        return;
+      }
 
-function toggleDesc(){
-  const el=document.getElementById('vpDesc');
-  const exp=el.classList.toggle('expanded');
-  document.querySelector('.vp-desc-btn').textContent=exp?'Show less ▴':'Show more ▾';
-}
-
-function doSearch(){
-  const q=document.getElementById('navSearch').value.trim();
-  if(!q)return;
-  showHome();switchTab('videos');currentCat='';loadVideos(q,'');
-}
-
-async function loadArticles(){
-  try{
-    const res=await fetch(`${API}/articles?limit=50`);
-    const data=await res.json();
-    allArticles=data.items||[];
-    document.getElementById('aLoading').style.display='none';
-    if(!allArticles.length){document.getElementById('aEmpty').style.display='block';return;}
-    const badge=document.getElementById('aBadge');
-    badge.textContent=allArticles.length+' articles';badge.style.display='inline';
-    document.getElementById('agrid').innerHTML=allArticles.map(a=>`
-      <div class="acard" onclick="openArticle('${a._id}')">
-        <div class="acard-img">${a.coverImage?`<img src="${esc(a.coverImage)}" loading="lazy" onerror="this.parentElement.innerHTML='🏥'"/>`:'🏥'}</div>
-        <div class="acard-body">
-          <div class="acat">${esc(a.category||'General')}</div>
-          <div class="acard-title">${esc(a.title)}</div>
-          <div class="acard-excerpt">${esc(a.excerpt||'')}</div>
-          <div class="acard-foot"><span>${esc(a.author||'Healthink')}</span><span>${a.readTime||3} min read</span></div>
+      const first = items[0];
+      feature.innerHTML = `
+        <div class="feature" onclick="openVideo('${first._id}')">
+          <img src="${imageFor(first)}" alt="${esc(first.title)}" loading="eager">
         </div>
-      </div>`).join('');
-    document.getElementById('agrid').style.display='grid';
-  }catch(e){
-    document.getElementById('aLoading').style.display='none';
-    document.getElementById('aEmpty').style.display='block';
-  }
-}
+        <div class="feature-info">
+          <div class="feature-title">${esc(first.title)}</div>
+          <div class="meta">${esc(first.channelTitle || "Healthink")} · ${(first.viewCount || 0).toLocaleString()} views · ${formatDate(first.publishedAt)}</div>
+        </div>
+      `;
 
-async function openArticle(id){
-  const body=document.getElementById('aModalBody');
-  body.innerHTML='<div class="ldots"><div class="ldot"></div><div class="ldot"></div><div class="ldot"></div></div>';
-  document.getElementById('aModal').classList.remove('hidden');
-  document.body.style.overflow='hidden';
-  try{
-    const res=await fetch(`${API}/articles/id/${id}`);
-    const full=await res.json();
-    if(!res.ok)throw new Error(full.error||'Not found');
-    body.innerHTML='';
-    if(full.coverImage){const img=document.createElement('img');img.className='art-img';img.src=full.coverImage;img.onerror=()=>img.style.display='none';body.appendChild(img);}
-    const cat=document.createElement('div');cat.className='art-cat';cat.textContent=full.category||'General';body.appendChild(cat);
-    const t=document.createElement('h2');t.className='art-title';t.textContent=full.title||'';body.appendChild(t);
-    const m=document.createElement('div');m.className='art-meta';
-    m.innerHTML='<span>✍ '+esc(full.author||'Healthink')+'</span><span>📅 '+fmtDate(full.createdAt)+'</span><span>⏱ '+(full.readTime||3)+' min read</span>';
-    body.appendChild(m);
-    const ab=document.createElement('div');ab.className='art-body';ab.innerHTML=full.content||'<p>No content.</p>';body.appendChild(ab);
-  }catch(e){
-    body.innerHTML=`<p style="color:var(--muted);padding:2rem;text-align:center;">${e.message}</p>`;
-  }
-}
+      grid.innerHTML = items.slice(1, 7).map((video, index) => `
+        <article class="video-card" onclick="openVideo('${video._id}')">
+          <div class="thumb"><img src="${imageFor(video, index + 1)}" alt="${esc(video.title)}" loading="lazy"></div>
+          <h3>${esc(video.title)}</h3>
+          <div class="meta">${(video.viewCount || 0).toLocaleString()} views · ${formatDate(video.publishedAt)}</div>
+        </article>
+      `).join("");
+    }
 
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function fmtDate(s){if(!s)return'';return new Date(s).toLocaleDateString('en-IN',{year:'numeric',month:'short',day:'numeric'});}
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.getElementById('aModal').classList.add('hidden');document.body.style.overflow='';}});
-init();
-</script>
+    function renderShorts(items) {
+      const row = document.getElementById("shortsRow");
+      row.innerHTML = items.length ? items.slice(0, 12).map((video, index) => `
+        <article class="short-card" onclick="openVideo('${video._id}')">
+          <img src="${imageFor(video, index)}" alt="${esc(video.title)}" loading="lazy">
+          <div class="short-info">${esc(video.title)}<small>▶ ${(video.viewCount || 0).toLocaleString()} views</small></div>
+        </article>
+      `).join("") : '<div class="empty">No Shorts available.</div>';
+    }
+
+    async function loadShorts() {
+      await loadVideos();
+      document.querySelector(".section").scrollIntoView({behavior:"smooth"});
+    }
+
+    async function loadArticles() {
+      try {
+        const data = await getJson(API + "/articles?limit=8");
+        articles = data.items || data || [];
+        renderArticles(articles);
+      } catch (error) {
+        document.getElementById("articleList").innerHTML = `<div class="empty">${esc(error.message)}</div>`;
+      }
+    }
+
+    function renderArticles(items) {
+      document.getElementById("articleList").innerHTML = items.length ? items.slice(0, 8).map((article, index) => `
+        <article class="article-card" onclick="openArticle('${article._id}')">
+          <img src="${imageFor(article, index)}" alt="${esc(article.title)}" loading="lazy">
+          <div>
+            <span class="category">${esc(article.category || "General")}</span>
+            <h3>${esc(article.title)}</h3>
+            <p>${esc(article.excerpt || "Read the latest health insights and practical guidance.")}</p>
+            <div class="meta">${formatDate(article.createdAt)}</div>
+          </div>
+        </article>
+      `).join("") : '<div class="empty">No articles published yet.</div>';
+    }
+
+    async function loadSideArticles(type, button) {
+      document.querySelectorAll(".side-tab").forEach(item => item.classList.remove("active"));
+      if (button) button.classList.add("active");
+
+      if (type === "articles") {
+        document.getElementById("sideHeading").innerHTML = "Latest <span>Health Articles</span>";
+        renderArticles(articles);
+        return;
+      }
+
+      document.getElementById("sideHeading").innerHTML = type === "health_update"
+        ? "Latest <span>Health News Videos</span>"
+        : "Latest <span>Healthcare News</span>";
+
+      const filtered = videos.filter(video =>
+        type === "health_update"
+          ? video.playlistType === "health_update"
+          : String(video.category || "").toLowerCase().includes("healthcare")
+      );
+
+      renderArticles(filtered.map(video => ({
+        _id: video._id,
+        title: video.title,
+        excerpt: video.description,
+        thumbnail: video.thumbnail,
+        category: type === "health_update" ? "Health News Video" : "Healthcare News",
+        createdAt: video.publishedAt
+      })));
+    }
+
+    function selectMainTab(type, button) {
+      activeType = type;
+      document.querySelectorAll(".tab").forEach(tab => tab.classList.toggle("active", tab === button || tab.dataset.type === type));
+
+      if (type === "articles") {
+        loadSideArticles("articles");
+        document.querySelector(".layout").scrollIntoView({behavior:"smooth"});
+        return;
+      }
+
+      if (type === "healthcare") {
+        loadSideArticles("healthcare");
+        document.querySelector(".layout").scrollIntoView({behavior:"smooth"});
+        return;
+      }
+
+      document.getElementById("videoHeading").innerHTML = type === "health_update"
+        ? "Latest <span>Health News Update Videos</span>"
+        : "Latest <span>Video Health Stories</span>";
+
+      loadVideos();
+    }
+
+    function searchAll() {
+      const query = document.getElementById("searchInput").value.trim();
+      if (query) loadVideos(query);
+    }
+
+    // Plays the video inside the page using a YouTube embed in a modal
+    function openVideo(id) {
+      const video = videos.find(item => item._id === id);
+      if (!video) return;
+      const youtubeId = video.youtubeId || video.videoId;
+      if (!youtubeId) return;
+
+      document.getElementById("videoModalTitle").textContent = video.title || "";
+      document.getElementById("videoFrame").innerHTML = `
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(youtubeId)}?autoplay=1&rel=0&modestbranding=1"
+          title="${esc(video.title)}"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+          allowfullscreen></iframe>`;
+      document.getElementById("videoModal").classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeVideo() {
+      // Clearing the iframe stops playback
+      document.getElementById("videoFrame").innerHTML = "";
+      document.getElementById("videoModal").classList.remove("open");
+      document.body.style.overflow = "";
+    }
+
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closeVideo(); });
+
+    async function openArticle(id) {
+      try {
+        const article = await getJson(API + "/articles/id/" + id);
+        const popup = window.open("", "_blank");
+        popup.document.write(`
+          <title>${esc(article.title)}</title>
+          <style>body{font-family:Arial;max-width:850px;margin:40px auto;padding:20px;line-height:1.8;color:#173337}img{max-width:100%}</style>
+          <h1>${esc(article.title)}</h1>
+          <p>${esc(article.excerpt || "")}</p>
+          <div>${article.content || ""}</div>
+        `);
+        popup.document.close();
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    Promise.all([loadVideos(), loadArticles()]);
+  </script>
 </body>
 </html>

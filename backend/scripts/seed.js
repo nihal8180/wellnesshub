@@ -1,26 +1,51 @@
-require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
-const mongoose = require('mongoose');
-const User     = require('../models/User');
+require("dotenv").config({
+  path: require("path").join(__dirname, "../.env"),
+});
 
-async function seed() {
-  await mongoose.connect(process.env.MONGODB_URI);
-  console.log('Connected to MongoDB');
+const mongoose = require("mongoose");
+const User = require("../models/User");
 
-  const existing = await User.findOne({ email: process.env.ADMIN_EMAIL });
-  if (existing) {
-    console.log('Admin already exists:', process.env.ADMIN_EMAIL);
-  } else {
+async function seedAdmin() {
+  try {
+    if (!process.env.MONGODB_URI) {
+      throw new Error("MONGODB_URI is missing in .env");
+    }
+
+    if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD) {
+      throw new Error(
+        "ADMIN_EMAIL or ADMIN_PASSWORD is missing in .env"
+      );
+    }
+
+    await mongoose.connect(process.env.MONGODB_URI);
+
+    console.log("Connected to MongoDB");
+
+    const email = process.env.ADMIN_EMAIL.toLowerCase().trim();
+
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      console.log(`Admin already exists: ${email}`);
+      return;
+    }
+
     await User.create({
-      email:    process.env.ADMIN_EMAIL,
+      email,
       password: process.env.ADMIN_PASSWORD,
-      name:     'Admin',
-      role:     'admin',
+      name: "Admin",
+      role: "super_admin",
+      active: true,
     });
-    console.log('Admin user created:', process.env.ADMIN_EMAIL);
-  }
 
-  await mongoose.disconnect();
-  process.exit(0);
+    console.log(`Super admin created successfully: ${email}`);
+  } catch (error) {
+    console.error("Seed error:", error.message);
+    process.exitCode = 1;
+  } finally {
+    await mongoose.disconnect();
+    console.log("MongoDB connection closed");
+  }
 }
 
-seed().catch(err => { console.error(err); process.exit(1); });
+seedAdmin();

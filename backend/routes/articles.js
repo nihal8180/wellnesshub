@@ -1,357 +1,984 @@
-const router  = require('express').Router();
-const Article = require('../models/Article');
-const { protect, adminOnly } = require('../middleware/auth');
 
-const slugify = (str) =>
-  str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const router = require("express").Router();
+const mongoose = require("mongoose");
 
-// ─── PUBLIC ROUTES ─────────────────────────────────────────────────────────────
+const Article = require("../models/Article");
+const Video = require("../models/Video");
 
-// GET /api/articles?category=X&featured=true&q=keyword&limit=10&page=1
-router.get('/', async (req, res) => {
+const {
+  protect,
+  requirePermission,
+} = require("../middleware/auth");
+
+// --------------------------------------------------
+// HELPERS
+// --------------------------------------------------
+
+const slugify = (str = "") =>
+  str
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\u0900-\u097f]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+const getPagination = (query, defaultLimit = 10) => {
+  const page = Math.max(parseInt(query.page, 10) || 1, 1);
+  const limit = Math.min(
+    Math.max(parseInt(query.limit, 10) || defaultLimit, 1),
+    50
+  );
+
+  return {
+    page,
+    limit,
+    skip: (page - 1) * limit,
+  };
+};
+
+const createUniqueSlug = async (title, excludeId = null) => {
+  let baseSlug = slugify(title) || `article-${Date.now()}`;
+  let slug = baseSlug;
+  let counter = 1;
+
+  while (
+    await Article.exists({
+      slug,
+      ...(excludeId
+        ? { _id: { $ne: excludeId } }
+        : {}),
+    })
+  ) {
+    slug = `${baseSlug}-${counter++}`;
+  }
+
+  return slug;
+};
+
+const calculateReadTime = (content = "") => {
+  const words = content.trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.ceil(words / 200));
+};
+
+const isValidObjectId = (id) =>
+  mongoose.Types.ObjectId.isValid(id);
+
+// --------------------------------------------------
+// PUBLIC ROUTES
+// --------------------------------------------------
+
+// GET /api/articles
+router.get("/", async (req, res) => {
   try {
-    const { category, featured, q, limit = 10, page = 1 } = req.query;
-    const filter = { published: true };
+    const {
+      category,
+      featured,
+      q,
+      language,
+    } = req.query;
 
-    if (category) filter.category = category;
-    if (featured) filter.featured = true;
-    if (q) {
-      filter.$text = { $search: q };
-      const skip  = (parseInt(page) - 1) * parseInt(limit);
-      const items = await Article.find(filter, { score: { $meta: 'textScore' } })
-        .sort({ score: { $meta: 'textScore' } }).skip(skip).limit(parseInt(limit))
-        .select('-content');
-      return res.json({ items, total: items.length, page: parseInt(page) });
+    const { page, limit, skip } = getPagination(req.query);
+
+    const filter = {
+      published: true,
+    };
+
+    if (category) {
+      filter.category = category;
     }
 
-    const skip  = (parseInt(page) - 1) * parseInt(limit);
-    const total = await Article.countDocuments(filter);
-    const items = await Article.find(filter)
-      .sort({ featured: -1, createdAt: -1 }).skip(skip).limit(parseInt(limit))
-      .select('-content');  // Exclude body from list to keep payload small
+    if (language) {
+      filter.language = language;
+    }
 
-    res.json({ items, total, page: parseInt(page), pages: Math.ceil(total / limit) });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    if (featured !== undefined) {
+      filter.featured = featured === "true";
+    }
+
+    if (q && q.trim()) {
+      filter.$text = {
+        $search: q.trim(),
+      };
+    }
+
+    const total = await Article.countDocuments(filter);
+
+    let query = Article.find(filter).select("-content");
+
+    if (q && q.trim()) {
+      query = query
+        .select({
+          score: {
+            $meta: "textScore",
+          },
+        })
+        .sort({
+          score: {
+            $meta: "textScore",
+          },
+        });
+    } else {
+      query = query.sort({
+        featured: -1,
+        createdAt: -1,
+      });
+    }
+
+    const items = await query
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    res.json({
+      success: true,
+      items,
+      total,
+      page,
+      limit,
+      pages: Math.ceil(total / limit),
+    });
+  } catch (error) {
+    console.error("Get articles error:", error.message);
+
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch articles",
+    });
   }
 });
 
 // GET /api/articles/categories
-router.get('/categories', async (req, res) => {
-  const cats = Article.schema.path('category').enumValues;
-  res.json(cats);
-});
-
-// GET /api/articles/id/:id  — full article by MongoDB _id (public)
-router.get('/id/:id', async (req, res) => {
+router.get("/categories", async (req, res) => {
   try {
-    const article = await Article.findOneAndUpdate(
-      { _id: req.params.id, published: true },
-      { $inc: { views: 1 } },
-      { new: true }
-    );
-    if (!article) return res.status(404).json({ error: 'Article not found' });
-    res.json(article);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+    const categories =
+      Article.schema.path("category").enumValues;
 
-// GET /api/articles/:slug  — full article by slug (public)
-router.get('/:slug', async (req, res) => {
-  try {
-    const article = await Article.findOneAndUpdate(
-      { slug: req.params.slug, published: true },
-      { $inc: { views: 1 } },
-      { new: true }
-    );
-    if (!article) return res.status(404).json({ error: 'Article not found' });
-    res.json(article);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ─── ADMIN ROUTES ──────────────────────────────────────────────────────────────
-
-// GET /api/articles/admin/all  — all articles including drafts
-router.get('/admin/all', protect, async (req, res) => {
-  try {
-    const { page = 1, limit = 20 } = req.query;
-    const skip  = (parseInt(page) - 1) * parseInt(limit);
-    const total = await Article.countDocuments();
-    const items = await Article.find().sort({ createdAt: -1 }).skip(skip).limit(parseInt(limit)).select('-content');
-    res.json({ items, total, page: parseInt(page), pages: Math.ceil(total / limit) });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// GET /api/articles/admin/:id  — get single article by id (for editing)
-router.get('/admin/:id', protect, async (req, res) => {
-  try {
-    const article = await Article.findById(req.params.id);
-    if (!article) return res.status(404).json({ error: 'Not found' });
-    res.json(article);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// POST /api/articles  — create new article
-router.post('/', protect, async (req, res) => {
-  try {
-    const { title, content, excerpt, coverImage, category, tags, published, featured, readTime, metaTitle, metaDescription } = req.body;
-    if (!title || !content || !excerpt) return res.status(400).json({ error: 'title, content, and excerpt are required' });
-
-    let slug = slugify(title);
-    // Ensure unique slug
-    const existing = await Article.findOne({ slug });
-    if (existing) slug = `${slug}-${Date.now()}`;
-
-    const article = await Article.create({
-      title, slug, content, excerpt, coverImage, category, tags,
-      published: published || false, featured: featured || false,
-      readTime: readTime || Math.ceil(content.split(' ').length / 200),
-      author: req.user.name,
-      metaTitle, metaDescription,
+    res.json({
+      success: true,
+      items: categories,
     });
-    res.status(201).json(article);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch categories",
+    });
   }
 });
 
-// PUT /api/articles/:id  — full update
-router.put('/:id', protect, async (req, res) => {
-  try {
-    const { title, content, excerpt, coverImage, category, tags, published, featured, readTime, metaTitle, metaDescription } = req.body;
-    const update = { title, content, excerpt, coverImage, category, tags, published, featured, readTime, metaTitle, metaDescription };
+// --------------------------------------------------
+// ADMIN ROUTES
+// Keep these BEFORE /:slug
+// --------------------------------------------------
 
-    // Re-slug if title changed
-    if (title) {
-      const current = await Article.findById(req.params.id);
-      if (current && current.title !== title) update.slug = slugify(title);
+// GET /api/articles/admin/all
+router.get(
+  "/admin/all",
+  protect,
+  requirePermission("editArticles"),
+  async (req, res) => {
+    try {
+      const { page, limit, skip } = getPagination(
+        req.query,
+        20
+      );
+
+      const filter = {};
+
+      if (req.query.published !== undefined) {
+        filter.published =
+          req.query.published === "true";
+      }
+
+      if (req.query.category) {
+        filter.category = req.query.category;
+      }
+
+      const total = await Article.countDocuments(filter);
+
+      const items = await Article.find(filter)
+        .select("-content")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean();
+
+      res.json({
+        success: true,
+        items,
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit),
+      });
+    } catch (error) {
+      console.error("Admin articles error:", error.message);
+
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch admin articles",
+      });
     }
-    if (content) update.readTime = readTime || Math.ceil(content.split(' ').length / 200);
-
-    const article = await Article.findByIdAndUpdate(req.params.id, update, { new: true, runValidators: true });
-    if (!article) return res.status(404).json({ error: 'Article not found' });
-    res.json(article);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
   }
-});
+);
 
-// PATCH /api/articles/:id  — partial update (e.g. toggle published/featured)
-router.patch('/:id', protect, async (req, res) => {
-  try {
-    const allowed = ['published', 'featured', 'category', 'tags', 'coverImage'];
-    const update  = {};
-    allowed.forEach(k => { if (req.body[k] !== undefined) update[k] = req.body[k]; });
-    const article = await Article.findByIdAndUpdate(req.params.id, update, { new: true });
-    if (!article) return res.status(404).json({ error: 'Article not found' });
-    res.json(article);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+// GET /api/articles/admin/:id
+router.get(
+  "/admin/:id",
+  protect,
+  requirePermission("editArticles"),
+  async (req, res) => {
+    try {
+      if (!isValidObjectId(req.params.id)) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid article ID",
+        });
+      }
+
+      const article = await Article.findById(req.params.id);
+
+      if (!article) {
+        return res.status(404).json({
+          success: false,
+          error: "Article not found",
+        });
+      }
+
+      res.json({
+        success: true,
+        article,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch article",
+      });
+    }
   }
-});
+);
+
+// --------------------------------------------------
+// CREATE ARTICLE
+// --------------------------------------------------
+
+// POST /api/articles
+router.post(
+  "/",
+  protect,
+  requirePermission("createArticles"),
+  async (req, res) => {
+    try {
+      const {
+        title,
+        content,
+        excerpt,
+        coverImage,
+        category,
+        tags,
+        published,
+        featured,
+        readTime,
+        metaTitle,
+        metaDescription,
+        language,
+      } = req.body;
+
+      if (!title?.trim() || !content?.trim() || !excerpt?.trim()) {
+        return res.status(400).json({
+          success: false,
+          error: "Title, content, and excerpt are required",
+        });
+      }
+
+      // Users without publishing permission can only create drafts
+      const canPublish =
+        req.user.role === "super_admin" ||
+        req.user.permissions?.publishArticles === true;
+
+      const finalPublished = canPublish
+        ? published === true
+        : false;
+
+      const slug = await createUniqueSlug(title);
+
+      const article = await Article.create({
+        title: title.trim(),
+        slug,
+        content,
+        excerpt: excerpt.trim(),
+        coverImage,
+        category,
+        tags: Array.isArray(tags) ? tags : [],
+        published: finalPublished,
+        featured: canPublish ? featured === true : false,
+        readTime: readTime || calculateReadTime(content),
+        author: req.user.name || "HealthInk Team",
+        metaTitle,
+        metaDescription,
+        language: language || "en",
+      });
+
+      res.status(201).json({
+        success: true,
+        message: "Article created successfully",
+        article,
+      });
+    } catch (error) {
+      console.error("Create article error:", error.message);
+
+      res.status(500).json({
+        success: false,
+        error: "Failed to create article",
+      });
+    }
+  }
+);
+
+// --------------------------------------------------
+// UPDATE ARTICLE
+// --------------------------------------------------
+
+// PUT /api/articles/:id
+router.put(
+  "/:id",
+  protect,
+  requirePermission("editArticles"),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      if (!isValidObjectId(id)) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid article ID",
+        });
+      }
+
+      const currentArticle = await Article.findById(id);
+
+      if (!currentArticle) {
+        return res.status(404).json({
+          success: false,
+          error: "Article not found",
+        });
+      }
+
+      const {
+        title,
+        content,
+        excerpt,
+        coverImage,
+        category,
+        tags,
+        published,
+        featured,
+        readTime,
+        metaTitle,
+        metaDescription,
+        language,
+      } = req.body;
+
+      const update = {};
+
+      if (title !== undefined) {
+        update.title = title.trim();
+
+        if (update.title !== currentArticle.title) {
+          update.slug = await createUniqueSlug(
+            update.title,
+            id
+          );
+        }
+      }
+
+      if (content !== undefined) {
+        update.content = content;
+        update.readTime =
+          readTime || calculateReadTime(content);
+      }
+
+      if (excerpt !== undefined) {
+        update.excerpt = excerpt.trim();
+      }
+
+      if (coverImage !== undefined) {
+        update.coverImage = coverImage;
+      }
+
+      if (category !== undefined) {
+        update.category = category;
+      }
+
+      if (tags !== undefined) {
+        update.tags = Array.isArray(tags) ? tags : [];
+      }
+
+      if (metaTitle !== undefined) {
+        update.metaTitle = metaTitle;
+      }
+
+      if (metaDescription !== undefined) {
+        update.metaDescription = metaDescription;
+      }
+
+      if (language !== undefined) {
+        update.language = language;
+      }
+
+      const canPublish =
+        req.user.role === "super_admin" ||
+        req.user.permissions?.publishArticles === true;
+
+      if (published !== undefined) {
+        update.published = canPublish
+          ? published === true
+          : currentArticle.published;
+      }
+
+      if (featured !== undefined) {
+        update.featured = canPublish
+          ? featured === true
+          : currentArticle.featured;
+      }
+
+      const article = await Article.findByIdAndUpdate(
+        id,
+        update,
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+      res.json({
+        success: true,
+        message: "Article updated successfully",
+        article,
+      });
+    } catch (error) {
+      console.error("Update article error:", error.message);
+
+      res.status(500).json({
+        success: false,
+        error: "Failed to update article",
+      });
+    }
+  }
+);
+
+// --------------------------------------------------
+// PARTIAL UPDATE
+// --------------------------------------------------
+
+// PATCH /api/articles/:id
+router.patch(
+  "/:id",
+  protect,
+  requirePermission("editArticles"),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      if (!isValidObjectId(id)) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid article ID",
+        });
+      }
+
+      const allowedFields = [
+        "category",
+        "tags",
+        "coverImage",
+        "metaTitle",
+        "metaDescription",
+        "language",
+      ];
+
+      const update = {};
+
+      allowedFields.forEach((field) => {
+        if (req.body[field] !== undefined) {
+          update[field] = req.body[field];
+        }
+      });
+
+      const canPublish =
+        req.user.role === "super_admin" ||
+        req.user.permissions?.publishArticles === true;
+
+      if (
+        req.body.published !== undefined &&
+        canPublish
+      ) {
+        update.published = req.body.published === true;
+      }
+
+      if (
+        req.body.featured !== undefined &&
+        canPublish
+      ) {
+        update.featured = req.body.featured === true;
+      }
+
+      if (Object.keys(update).length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: "No valid fields provided",
+        });
+      }
+
+      const article = await Article.findByIdAndUpdate(
+        id,
+        update,
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+      if (!article) {
+        return res.status(404).json({
+          success: false,
+          error: "Article not found",
+        });
+      }
+
+      res.json({
+        success: true,
+        message: "Article updated successfully",
+        article,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: "Failed to update article",
+      });
+    }
+  }
+);
+
+// --------------------------------------------------
+// DELETE ARTICLE
+// --------------------------------------------------
 
 // DELETE /api/articles/:id
-router.delete('/:id', protect, adminOnly, async (req, res) => {
-  try {
-    await Article.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Article deleted' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+router.delete(
+  "/:id",
+  protect,
+  requirePermission("deleteContent"),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
 
-module.exports = router;
+      if (!isValidObjectId(id)) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid article ID",
+        });
+      }
+
+      const article = await Article.findByIdAndDelete(id);
+
+      if (!article) {
+        return res.status(404).json({
+          success: false,
+          error: "Article not found",
+        });
+      }
+
+      res.json({
+        success: true,
+        message: "Article deleted successfully",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: "Failed to delete article",
+      });
+    }
+  }
+);
+
+// --------------------------------------------------
+// GENERATE ARTICLE FROM VIDEO
+// --------------------------------------------------
 
 // POST /api/articles/generate-from-video/:videoId
-// Generates a full health article from a video using AI (or smart local fallback)
-router.post('/generate-from-video/:videoId', protect, async (req, res) => {
+router.post(
+  "/generate-from-video/:videoId",
+  protect,
+  requirePermission("createArticles"),
+  async (req, res) => {
+    try {
+      const { videoId } = req.params;
+
+      if (!isValidObjectId(videoId)) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid video ID",
+        });
+      }
+
+      const video = await Video.findById(videoId);
+
+      if (!video) {
+        return res.status(404).json({
+          success: false,
+          error: "Video not found",
+        });
+      }
+
+      const generatedArticle =
+        await generateArticleFromVideo(video);
+
+      const slug = await createUniqueSlug(
+        generatedArticle.title
+      );
+
+      const savedArticle = await Article.create({
+        title: generatedArticle.title,
+        slug,
+        content: generatedArticle.content,
+        excerpt: generatedArticle.excerpt,
+        category: generatedArticle.category,
+        tags: generatedArticle.tags || [],
+        author: req.user.name || "HealthInk Team",
+        coverImage: video.thumbnail || "",
+        published: false,
+        featured: false,
+        readTime: calculateReadTime(
+          generatedArticle.content
+        ),
+        language: generatedArticle.language || "en",
+      });
+
+      res.status(201).json({
+        success: true,
+        message: "AI article generated and saved as draft",
+        article: savedArticle,
+      });
+    } catch (error) {
+      console.error(
+        "Generate article error:",
+        error.message
+      );
+
+      res.status(500).json({
+        success: false,
+        error: "Failed to generate article",
+      });
+    }
+  }
+);
+
+// --------------------------------------------------
+// PUBLIC ARTICLE BY ID
+// Keep after admin routes
+// --------------------------------------------------
+
+// GET /api/articles/id/:id
+router.get("/id/:id", async (req, res) => {
   try {
-    const Video = require('../models/Video');
-    const video = await Video.findById(req.params.videoId);
-    if (!video) return res.status(404).json({ error: 'Video not found' });
+    if (!isValidObjectId(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid article ID",
+      });
+    }
 
-    const article = await generateArticleFromVideo(video);
+    const article = await Article.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        published: true,
+      },
+      {
+        $inc: {
+          views: 1,
+        },
+      },
+      {
+        new: true,
+      }
+    );
 
-    // Auto-save as draft
-    let slug = slugify(article.title);
-    const existing = await Article.findOne({ slug });
-    if (existing) slug = `${slug}-${Date.now()}`;
+    if (!article) {
+      return res.status(404).json({
+        success: false,
+        error: "Article not found",
+      });
+    }
 
-    const saved = await Article.create({
-      title:       article.title,
-      slug,
-      content:     article.content,
-      excerpt:     article.excerpt,
-      category:    article.category,
-      tags:        article.tags,
-      author:      req.user.name,
-      coverImage:  video.thumbnail || '',
-      published:   false,  // saved as draft — admin reviews before publishing
-      readTime:    Math.ceil(article.content.split(' ').length / 200),
+    res.json({
+      success: true,
+      article,
     });
-
-    res.status(201).json(saved);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch article",
+    });
   }
 });
 
-// ─── Article generator (free, no paid API needed) ─────────────────────────────
-async function generateArticleFromVideo(video) {
-  const title       = video.title || '';
-  const description = video.description || '';
-  const tags        = video.tags || [];
+// --------------------------------------------------
+// PUBLIC ARTICLE BY SLUG
+// Must be LAST
+// --------------------------------------------------
 
-  // Try Hugging Face first if token available
-  if (process.env.HF_TOKEN) {
-    try { return await generateWithHF(video); } catch (e) { console.warn('HF article gen failed:', e.message); }
+// GET /api/articles/:slug
+router.get("/:slug", async (req, res) => {
+  try {
+    const article = await Article.findOneAndUpdate(
+      {
+        slug: req.params.slug,
+        published: true,
+      },
+      {
+        $inc: {
+          views: 1,
+        },
+      },
+      {
+        new: true,
+      }
+    );
+
+    if (!article) {
+      return res.status(404).json({
+        success: false,
+        error: "Article not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      article,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch article",
+    });
   }
+});
 
-  // Smart local generator (always works)
+// --------------------------------------------------
+// AI ARTICLE GENERATOR
+// --------------------------------------------------
+
+async function generateArticleFromVideo(video) {
+  // Local generator is used as a reliable fallback.
+  // You can connect Groq/OpenAI here later.
+
   return generateLocalArticle(video);
 }
 
-async function generateWithHF(video) {
-  const axios = require('axios');
-  const input = `Write a detailed health article about: ${video.title}. ${(video.description||'').slice(0,500)}`;
+function generateLocalArticle(video) {
+  const title = video.title || "Health Article";
+  const description = video.description || "";
+  const tags = video.tags || [];
 
-  const { data } = await axios.post(
-    'https://api-inference.huggingface.co/models/facebook/bart-large-cnn',
-    { inputs: input, parameters: { max_length: 500, min_length: 200 } },
-    { headers: { Authorization: `Bearer ${process.env.HF_TOKEN}` }, timeout: 30000 }
+  const topic = title
+    .replace(/\|.*$/, "")
+    .replace(/\[.*?\]/g, "")
+    .trim();
+
+  const sentences = description
+    .replace(/\n+/g, " ")
+    .split(/(?<=[.!?])\s+/)
+    .map((sentence) => sentence.trim())
+    .filter(
+      (sentence) =>
+        sentence.length > 40 &&
+        sentence.length < 400
+    )
+    .filter(
+      (sentence) =>
+        !/^(http|subscribe|follow|like|share|click|visit|check out)/i.test(
+          sentence
+        )
+    );
+
+  const category = detectCategory(
+    `${title} ${description}`
   );
 
-  const summary = data[0]?.summary_text || '';
-  if (!summary) throw new Error('Empty HF response');
+  const keyTags = tags.slice(0, 6).length
+    ? tags.slice(0, 6)
+    : extractKeywords(`${title} ${description}`);
 
-  return buildArticleFromSummary(video, summary);
-}
+  const intro =
+    sentences.slice(0, 2).join(" ") ||
+    `${topic} is an important health topic. Understanding the available information can help people make informed decisions about their health.`;
 
-function generateLocalArticle(video) {
-  const title = video.title || 'Health Article';
-  const desc  = video.description || '';
-  const tags  = video.tags || [];
+  const body = buildBodySections(
+    topic,
+    sentences.slice(2)
+  );
 
-  // Extract sentences from description
-  const sentences = desc
-    .replace(/\n+/g, ' ')
-    .split(/(?<=[.!?])\s+/)
-    .map(s => s.trim())
-    .filter(s => s.length > 40 && s.length < 400)
-    .filter(s => !s.match(/^(http|subscribe|follow|like|share|click|visit|check out)/i));
-
-  const topic    = title.replace(/\|.*$/, '').replace(/\[.*?\]/g, '').trim();
-  const category = detectCategory(title + ' ' + desc);
-  const keyTags  = tags.slice(0, 6).length ? tags.slice(0, 6) : extractKeywords(title + ' ' + desc);
-
-  // Build sections
-  const intro = sentences.slice(0, 2).join(' ') ||
-    `${topic} is an important health topic that affects millions of people. Understanding it can help you make better decisions for your health and wellbeing.`;
-
-  const body = buildBodySections(topic, sentences.slice(2));
-
-  const content = `<h2>Introduction</h2>
-<p>${intro}</p>
+  const content = `
+<h2>Introduction</h2>
+<p>${escapeHtml(intro)}</p>
 
 ${body}
 
 <h2>Key Takeaways</h2>
 <ul>
-${keyTags.map(t => `  <li>Learn about <strong>${t}</strong> and how it affects your health</li>`).join('\n')}
-  <li>Early awareness and prevention are the best approaches</li>
-  <li>Always consult your doctor for personalized medical advice</li>
+${keyTags
+  .map(
+    (tag) =>
+      `<li>Learn about <strong>${escapeHtml(
+        tag
+      )}</strong> and its relevance to health.</li>`
+  )
+  .join("\n")}
+<li>Follow reliable health information and preventive practices.</li>
+<li>Consult a qualified healthcare professional for personal advice.</li>
 </ul>
 
 <h2>Watch the Full Video</h2>
-<p>For a complete, detailed explanation of <strong>${topic}</strong>, watch the full video on the <a href="https://www.youtube.com/@healthink" target="_blank">@healthink YouTube channel</a>. Our health experts break down complex medical information in simple, easy-to-understand language.</p>
+<p>
+For more information, watch the complete video on the
+<a href="https://www.youtube.com/@healthink" target="_blank">
+HealthInk YouTube channel
+</a>.
+</p>
 
-<p><em>Disclaimer: This article is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional for diagnosis and treatment.</em></p>`;
+<p>
+<em>
+Disclaimer: This article is for educational purposes only
+and does not constitute medical advice.
+</em>
+</p>
+`;
 
-  const excerpt = `${intro.slice(0, 180)}${intro.length > 180 ? '...' : ''}`;
-
-  return { title: `${topic} — Complete Health Guide`, content, excerpt, category, tags: keyTags };
-}
-
-function buildArticleFromSummary(video, summary) {
-  const topic    = video.title.replace(/\|.*$/, '').trim();
-  const category = detectCategory(video.title + ' ' + video.description);
-  const keyTags  = video.tags?.slice(0, 6) || extractKeywords(video.title);
-
-  const content = `<h2>Overview</h2>
-<p>${summary}</p>
-
-<h2>Why This Matters for Your Health</h2>
-<p>Understanding ${topic} is essential for maintaining good health. This video from the @healthink channel covers important aspects that everyone should know.</p>
-
-<h2>Key Points</h2>
-<ul>
-${keyTags.map(t => `  <li><strong>${t}</strong> — an important aspect covered in this video</li>`).join('\n')}
-</ul>
-
-<h2>Watch the Full Video</h2>
-<p>For complete details, watch the full video on <a href="https://www.youtube.com/@healthink" target="_blank">@healthink YouTube channel</a>.</p>
-
-<p><em>Disclaimer: For educational purposes only. Consult your doctor for medical advice.</em></p>`;
+  const excerpt =
+    intro.length > 200
+      ? `${intro.slice(0, 200)}...`
+      : intro;
 
   return {
-    title:   `${topic} — Health Guide`,
+    title: `${topic} — Complete Health Guide`,
     content,
-    excerpt: summary.slice(0, 200) + '...',
+    excerpt,
     category,
     tags: keyTags,
+    language: "en",
   };
 }
 
 function buildBodySections(topic, sentences) {
   if (!sentences.length) {
-    return `<h2>Understanding ${topic}</h2>
-<p>${topic} is a health condition that requires awareness and proper medical guidance. It is important to recognize the signs early and seek appropriate treatment.</p>
+    return `
+<h2>Understanding ${escapeHtml(topic)}</h2>
+<p>
+Understanding this topic requires reliable information
+and appropriate medical guidance.
+</p>
 
 <h2>Prevention and Care</h2>
-<p>Preventing and managing ${topic} involves a combination of lifestyle changes, medical treatment, and regular health checkups. Always follow your doctor's advice for the best outcomes.</p>`;
+<p>
+Prevention and care may involve lifestyle changes,
+regular checkups, and guidance from healthcare professionals.
+</p>
+`;
   }
 
-  const mid   = Math.floor(sentences.length / 2);
-  const part1 = sentences.slice(0, mid).join(' ');
-  const part2 = sentences.slice(mid).join(' ');
+  const midpoint = Math.floor(sentences.length / 2);
 
-  return `<h2>Understanding ${topic}</h2>
-<p>${part1 || `${topic} is an important health topic that requires proper awareness and medical attention.`}</p>
+  const part1 = sentences.slice(0, midpoint).join(" ");
+  const part2 = sentences.slice(midpoint).join(" ");
+
+  return `
+<h2>Understanding ${escapeHtml(topic)}</h2>
+<p>${escapeHtml(part1 || topic)}</p>
 
 <h2>Treatment and Prevention</h2>
-<p>${part2 || `Prevention and early treatment of ${topic} can significantly improve health outcomes. Consult a healthcare professional for personalized advice.`}</p>`;
+<p>${escapeHtml(part2 || "Consult a healthcare professional for guidance.")}</p>
+`;
 }
 
-function detectCategory(text) {
-  const t = text.toLowerCase();
-  if (t.match(/child|baby|infant|kid|pediatric/))    return 'Women Health';
-  if (t.match(/heart|cardiac|blood pressure|bp/))    return 'Heart Health';
-  if (t.match(/diet|nutrition|food|vitamin|eat/))    return 'Nutrition';
-  if (t.match(/mental|anxiety|depression|stress/))   return 'Mental Health';
-  if (t.match(/exercise|yoga|fitness|workout/))      return 'Fitness';
-  if (t.match(/allerg|asthma|diabetes|cancer/))      return 'Disease Awareness';
-  if (t.match(/prevent|vaccine|screen|check/))       return 'Preventive Care';
-  return 'General';
+function detectCategory(text = "") {
+  const value = text.toLowerCase();
+
+  if (/heart|cardiac|blood pressure|bp/.test(value)) {
+    return "Heart Health";
+  }
+
+  if (/diet|nutrition|food|vitamin|eat/.test(value)) {
+    return "Nutrition";
+  }
+
+  if (/mental|anxiety|depression|stress/.test(value)) {
+    return "Mental Health";
+  }
+
+  if (/exercise|yoga|fitness|workout/.test(value)) {
+    return "Fitness";
+  }
+
+  if (/allerg|asthma|diabetes|cancer/.test(value)) {
+    return "Disease Awareness";
+  }
+
+  if (/prevent|vaccine|screen|check/.test(value)) {
+    return "Preventive Care";
+  }
+
+  return "General";
 }
 
-function extractKeywords(text) {
-  const stopWords = new Set(['the','a','an','is','are','was','were','be','been','have','has','had','do','does','did','will','would','could','should','may','might','this','that','these','those','i','we','you','he','she','it','they','and','or','but','in','on','at','to','for','of','with','by','from','about']);
-  const freq = {};
-  text.toLowerCase()
-    .replace(/[^a-z\u0900-\u097f\s]/g, '')
+function extractKeywords(text = "") {
+  const stopWords = new Set([
+    "the",
+    "and",
+    "this",
+    "that",
+    "with",
+    "from",
+    "about",
+    "your",
+    "have",
+    "will",
+    "into",
+    "their",
+    "there",
+    "which",
+    "what",
+    "when",
+    "where",
+    "health",
+  ]);
+
+  const frequency = {};
+
+  text
+    .toLowerCase()
+    .replace(/[^\p{L}\s]/gu, "")
     .split(/\s+/)
-    .filter(w => w.length > 3 && !stopWords.has(w))
-    .forEach(w => { freq[w] = (freq[w] || 0) + 1; });
-  return Object.entries(freq)
+    .filter(
+      (word) =>
+        word.length > 3 &&
+        !stopWords.has(word)
+    )
+    .forEach((word) => {
+      frequency[word] = (frequency[word] || 0) + 1;
+    });
+
+  return Object.entries(frequency)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 6)
-    .map(([w]) => w);
+    .map(([word]) => word);
 }
 
+function escapeHtml(value = "") {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+module.exports = router;

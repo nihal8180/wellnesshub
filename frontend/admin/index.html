@@ -155,6 +155,29 @@ tr:hover td{background:rgba(43,168,164,.02);}
 .section-title{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:300;margin-bottom:1rem;}
 .sync-notice{background:rgba(201,169,97,.07);border:1px solid rgba(201,169,97,.2);color:var(--gold2);border-radius:8px;padding:.75rem 1.1rem;font-size:.825rem;margin-bottom:1.5rem;line-height:1.5;}
 .empty-row td{text-align:center;color:var(--subtle);padding:3rem;font-size:.875rem;}
+
+/* RESPONSIVE DESIGN */
+@media (max-width:900px){
+  :root{--sidebar:190px;}
+  .content{padding:1.25rem;}
+  .topbar{padding:.75rem 1.25rem;}
+  .stats-grid{grid-template-columns:repeat(2,1fr)!important;}
+  .table-wrap{overflow-x:auto;}
+  table{min-width:850px;}
+}
+@media (max-width:600px){
+  #app{flex-direction:column;}
+  aside{width:100%;height:auto;}
+  .sidebar-logo{padding:1rem;}
+  nav.sidenav{display:flex;overflow-x:auto;padding:.5rem;}
+  .nav-group{display:flex;align-items:center;margin:0;}
+  .nav-group-label{display:none;}
+  .nav-item{white-space:nowrap;}
+  .sidebar-foot{display:none;}
+  .stats-grid{grid-template-columns:1fr!important;}
+  .form-row{grid-template-columns:1fr;}
+  .login-card{width:calc(100% - 2rem);padding:1.5rem;}
+}
 </style>
 </head>
 <body>
@@ -162,7 +185,7 @@ tr:hover td{background:rgba(43,168,164,.02);}
 <!-- LOGIN -->
 <div id="loginScreen">
   <div class="login-card">
-    <div class="login-logo">heal<span class="th">th</span>ink</div>
+    <div class="login-logo">Health<span class="th">Ink</span></div>
     <div class="login-sub">Admin Dashboard — Sign in to continue</div>
     <div class="field"><label>Email</label><input type="email" id="loginEmail" placeholder="admin@healthink.com" onkeydown="if(event.key==='Enter')doLogin()"/></div>
     <div class="field"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
@@ -175,7 +198,7 @@ tr:hover td{background:rgba(43,168,164,.02);}
 <div id="app">
   <aside>
     <div class="sidebar-logo">
-      <div class="brand">heal<span class="th">th</span>ink</div>
+      <div class="brand">Health<span class="th">Ink</span></div>
       <div class="role-tag">Admin Panel</div>
     </div>
     <nav class="sidenav">
@@ -195,6 +218,10 @@ tr:hover td{background:rgba(43,168,164,.02);}
         <div class="nav-item" onclick="goto('articles')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           Articles
+        </div>
+        <div class="nav-item" onclick="goto('health-news')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+          Health News
         </div>
       </div>
       <div class="nav-group">
@@ -269,13 +296,26 @@ tr:hover td{background:rgba(43,168,164,.02);}
         </div>
       </div>
 
+      <!-- HEALTH NEWS -->
+      <div class="page" id="page-health-news">
+        <div class="filter-bar">
+          <input type="text" id="nSearch" placeholder="Search health news…" oninput="filterHealthNews()" style="flex:1;min-width:200px;"/>
+          <select id="nStatusFilter" onchange="filterHealthNews()"><option value="">All status</option><option value="true">Published</option><option value="false">Draft</option></select>
+        </div>
+        <div class="table-wrap">
+          <div class="table-head"><h3>Health News <span style="color:var(--subtle);font-weight:400;" id="nCount"></span></h3></div>
+          <table><thead><tr><th>Title</th><th>Author</th><th>Status</th><th>Featured</th><th>Views</th><th>Created</th><th>Actions</th></tr></thead>
+          <tbody id="nTableBody"><tr><td colspan="7" style="text-align:center;color:var(--subtle);padding:3rem;">Loading…</td></tr></tbody></table>
+        </div>
+      </div>
+
       <!-- SETTINGS -->
       <div class="page" id="page-settings">
         <div style="max-width:560px;">
           <div class="section-title">Channel Configuration</div>
           <div class="table-wrap" style="padding:1.5rem;margin-bottom:2rem;">
             <div class="f" style="margin-bottom:1rem;"><label>YouTube Channel ID or Handle</label><input type="text" id="settingChannel" placeholder="@healthink"/></div>
-            <div class="f" style="margin-bottom:1.25rem;"><label>Site Title</label><input type="text" id="settingTitle" placeholder="Healthink"/></div>
+            <div class="f" style="margin-bottom:1.25rem;"><label>Site Title</label><input type="text" id="settingTitle" placeholder="HealthInk"/></div>
             <button class="btn-sm" onclick="saveSettings()">Save Settings</button>
           </div>
           <div class="section-title">Actions</div>
@@ -302,7 +342,7 @@ tr:hover td{background:rgba(43,168,164,.02);}
       <div class="form-row one"><div class="f"><label>Title *</label><input type="text" id="fTitle" placeholder="e.g. 10 Tips for a Healthy Heart"/></div></div>
       <div class="form-row">
         <div class="f"><label>Category</label>
-          <select id="fCategory"><option>General</option><option>Nutrition</option><option>Mental Health</option><option>Fitness</option><option>Disease Awareness</option><option>Preventive Care</option><option>Women Health</option><option>Heart Health</option></select>
+          <select id="fCategory"><option>General</option><option>Health News</option><option>Nutrition</option><option>Mental Health</option><option>Fitness</option><option>Disease Awareness</option><option>Preventive Care</option><option>Women Health</option><option>Heart Health</option></select>
         </div>
         <div class="f"><label>Cover Image URL</label><input type="url" id="fCover" placeholder="https://…"/></div>
       </div>
@@ -336,7 +376,7 @@ tr:hover td{background:rgba(43,168,164,.02);}
 <div id="toast"></div>
 
 <script>
-const API = (window.BACKEND_URL || 'https://wellnesshub-2tq3.onrender.com') + '/api';
+const API = "http://localhost:5000/api";
 let token = localStorage.getItem('wh_token') || '';
 let currentUser = null;
 let allVideos = [], allArticles = [];
@@ -378,7 +418,7 @@ async function checkSession(){
   }catch{token='';localStorage.removeItem('wh_token');}
 }
 
-const PAGE_TITLES={dashboard:'Dashboard',videos:'Videos',articles:'Articles',settings:'Settings'};
+const PAGE_TITLES={dashboard:'Dashboard',videos:'Videos',articles:'Articles','health-news':'Health News',settings:'Settings'};
 
 function goto(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -389,6 +429,7 @@ function goto(page){
   setTopbarActions(page);
   if(page==='videos')loadVideos();
   if(page==='articles')loadArticles();
+  if(page==='health-news')loadHealthNews();
   if(page==='settings')loadSettings();
 }
 
@@ -396,6 +437,7 @@ function setTopbarActions(page){
   const el=document.getElementById('topbarActions');
   if(page==='videos') el.innerHTML=`<button class="btn-sm secondary" onclick="syncYouTube()">↻ Sync YouTube</button>`;
   else if(page==='articles') el.innerHTML=`<button class="btn-sm" onclick="openNewArticle()">+ New Article</button>`;
+  else if(page==='health-news') el.innerHTML=`<button class="btn-sm" onclick="openNewHealthNews()">+ New Health News</button>`;
   else el.innerHTML='';
 }
 
@@ -532,6 +574,52 @@ async function toggleArticle(id,field,val){
   }catch(e){toast(e.message,'err');}
 }
 
+async function loadHealthNews(){
+  document.getElementById('nTableBody').innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--subtle);padding:2rem;">Loading…</td></tr>';
+  try{
+    const data=await api('GET','/articles/admin/all?limit=200');
+    const news=(data.items||[]).filter(a=>(a.category||'').toLowerCase()==='health news');
+    window.allHealthNews=news;
+    renderHealthNewsTable(news);
+  }catch(e){document.getElementById('nTableBody').innerHTML=`<tr><td colspan="7" style="text-align:center;color:var(--subtle);padding:2rem;">Error: ${e.message}</td></tr>`;}
+}
+
+function filterHealthNews(){
+  const q=document.getElementById('nSearch').value.toLowerCase();
+  const st=document.getElementById('nStatusFilter').value;
+  renderHealthNewsTable((window.allHealthNews||[]).filter(a=>{
+    if(q&&!((a.title||'').toLowerCase().includes(q)))return false;
+    if(st!==''&&String(a.published)!==st)return false;
+    return true;
+  }));
+}
+
+function renderHealthNewsTable(news){
+  document.getElementById('nCount').textContent=`(${news.length})`;
+  if(!news.length){document.getElementById('nTableBody').innerHTML='<tr><td colspan="7" class="empty-row">No health news found</td></tr>';return;}
+  document.getElementById('nTableBody').innerHTML=news.map(a=>`
+    <tr>
+      <td style="max-width:280px;"><div style="font-size:.875rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(a.title)}">${esc(a.title)}</div></td>
+      <td style="color:var(--muted);font-size:.8rem;">${esc(a.author||'—')}</td>
+      <td><span class="pill ${a.published?'green':'red'}">${a.published?'Published':'Draft'}</span></td>
+      <td><span class="pill ${a.featured?'gold':'gray'}">${a.featured?'Featured':'—'}</span></td>
+      <td style="color:var(--subtle);font-size:.8rem;">${(a.views||0).toLocaleString()}</td>
+      <td style="color:var(--subtle);font-size:.78rem;">${fmtDate(a.createdAt)}</td>
+      <td><div class="td-actions">
+        <button class="act-btn" onclick="editArticle('${a._id}')">Edit</button>
+        <button class="act-btn" onclick="toggleArticle('${a._id}','published',${!a.published})">${a.published?'Unpublish':'Publish'}</button>
+        <button class="act-btn" onclick="toggleArticle('${a._id}','featured',${!a.featured})">${a.featured?'Unfeature':'Feature'}</button>
+        <button class="act-btn del" onclick="askDelete('article','${a._id}','${esc(a.title)}')">Delete</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function openNewHealthNews(){
+  openNewArticle();
+  document.getElementById('drawerTitle').textContent='New Health News';
+  document.getElementById('fCategory').value='Health News';
+}
+
 function openNewArticle(){
   document.getElementById('editingId').value='';
   document.getElementById('drawerTitle').textContent='New Article';
@@ -577,7 +665,7 @@ async function saveArticle(){
     if(id)await api('PUT',`/articles/${id}`,body);
     else await api('POST','/articles',body);
     toast(id?'Article updated':'Article created','ok');
-    closeDrawer();loadArticles();loadStats();
+    closeDrawer();loadArticles();if(document.getElementById('page-health-news').classList.contains('active'))loadHealthNews();loadStats();
   }catch(e){toast(e.message,'err');}
 }
 
@@ -632,13 +720,23 @@ async function saveSettings(){
   }catch(e){toast(e.message,'err');}
 }
 
-async function api(method,path,body,auth=true){
+async function api(method,path,body=null,auth=true){
   const opts={method,headers:{'Content-Type':'application/json'}};
   if(auth&&token)opts.headers['Authorization']='Bearer '+token;
-  if(body)opts.body=JSON.stringify(body);
+  if(body!==null)opts.body=JSON.stringify(body);
+
   const r=await fetch(API+path,opts);
-  const d=await r.json();
-  if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);
+  let d;
+  try{d=await r.json();}
+  catch{throw new Error(`Server returned HTTP ${r.status}`);}
+
+  if(!r.ok){
+    if(r.status===401&&auth){
+      logout();
+      throw new Error('Session expired. Please sign in again.');
+    }
+    throw new Error(d.message||d.error||`Request failed: HTTP ${r.status}`);
+  }
   return d;
 }
 
